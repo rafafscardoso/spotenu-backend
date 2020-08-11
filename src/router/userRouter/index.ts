@@ -18,4 +18,6 @@ userRouter.get('/band/all', userController.getAllBands);
 
 userRouter.put('/approve/:id', userController.approveBand);
 
+userRouter.put('/update/:id', userController.updateFreeToPremium);
+
 userRouter.get('/token', userController.getAccessTokenByRefreshToken);

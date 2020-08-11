@@ -111,4 +111,16 @@ export class UserDatase extends BaseDatabase {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
   }
+
+  public updateFreeToPremium = async (id:string):Promise<void> => {
+    const role = User.stringToUserRole('premium');
+    try {
+      await this.getConnection()
+        .update({ role })
+        .from(UserDatase.TABLE_NAME)
+        .where({ id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
 }

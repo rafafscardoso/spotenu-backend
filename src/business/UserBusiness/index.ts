@@ -152,7 +152,7 @@ export class UserBusiness {
       throw new UnauthorizedError('Only accessible for admin');
     }
 
-    const bands = await this.userDatabase.getAllBands()
+    const bands:GetAllBandsResponseDTO[] = await this.userDatabase.getAllBands()
 
     return bands;
   }
@@ -169,7 +169,7 @@ export class UserBusiness {
       throw new NotFoundError('User not found');
     }
 
-    if (user.role === USER_ROLES.BAND) {
+    if (User.stringToUserRole(user.role) === USER_ROLES.BAND) {
       if (user.isApproved) {
         throw new InvalidParameterError('Band has already been approved');
       }
@@ -178,6 +178,27 @@ export class UserBusiness {
     await this.userDatabase.approveBand(bandId);
 
     return { message: 'Band approved successfully' };
+  }
+
+  public updateFreeToPremium = async (token:string, userId:string):Promise<SignUpResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
+      throw new UnauthorizedError('Only accessible for admin');
+    }
+
+    const user = await this.userDatabase.getUserById(userId);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    if (User.stringToUserRole(user.role) === USER_ROLES.PREMIUM) {
+      throw new InvalidParameterError('User has already been premium');
+    }
+
+    await this.userDatabase.updateFreeToPremium(userId);
+
+    return { message: 'Updated to premium successfully' };
   }
 
   public getAccessTokenByRefreshToken = async (input:RefreshTokenInputDTO):Promise<TokenResponseDTO> => {

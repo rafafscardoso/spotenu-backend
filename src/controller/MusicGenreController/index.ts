@@ -22,7 +22,7 @@ export class MusicGenreController {
     try {
       const token = req.headers.authorization!;
 
-      const { name } = req.body;
+      const name = req.body.name.toUpperCase();
 
       const message:SignUpResponseDTO = await MusicGenreController.musicGenreBusiness.createMusicGenre(token, name);
 

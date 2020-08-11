@@ -50,7 +50,7 @@ export class MusicGenreBusiness {
       throw new UnauthorizedError('Only accessible for admin or band');
     }
 
-    const musicGenres = await this.musicGenreDataBase.getAllMusicGenres();
+    const musicGenres:MusicGenre[] = await this.musicGenreDataBase.getAllMusicGenres();
 
     return musicGenres;
   }

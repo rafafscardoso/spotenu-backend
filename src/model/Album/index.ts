@@ -1,4 +1,5 @@
 import { MusicGenre } from "../Band";
+import { SongAlbumDTO } from "../Song";
 
 export class Album {
   constructor (
@@ -6,7 +7,9 @@ export class Album {
     private name:string,
     private image:string,
     private creatorBandId:string,
-    private musicGenres:MusicGenre[]
+    private creatorBandName:string,
+    private musicGenres:MusicGenre[],
+    private songs:SongAlbumDTO[]
   ) {}
 
   public getId = ():string => this.id;
@@ -17,7 +20,11 @@ export class Album {
 
   public getCreatorBandId = ():string => this.creatorBandId;
 
+  public getCreatorBandName = ():string => this.creatorBandName;
+
   public getMusicGenres = ():MusicGenre[] => this.musicGenres;
+
+  public getSongs = ():SongAlbumDTO[] => this.songs;
 
   public setId = (id:string):void => {
     this.id = id;
@@ -35,12 +42,20 @@ export class Album {
     this.creatorBandId = creatorBandId;
   }
 
+  public setCreatorBandName = (creatorBAndName:string):void => {
+    this.creatorBandName = creatorBAndName;
+  }
+
   public setMusicGenres = (musicGenres:MusicGenre[]): void => {
     this.musicGenres = musicGenres;
   }
 
+  public setSongs = (songs:SongAlbumDTO[]):void => {
+    this.songs = songs;
+  }
+
   public static toAlbumModel = (album:any):Album => (
-    new Album(album.id, album.name, album.image, album.creatorBandId, album.musicGenres)
+    new Album(album.id, album.name, album.image, album.creatorBandId, album.creatorBandName, album.musicGenres, album.songs)
   )
 }
 
@@ -55,4 +70,17 @@ export interface AlbumInputDTO {
   name:string,
   image:string,
   musicGenres:MusicGenre[]
+}
+
+export interface AlbumGenreDTO {
+  id?:string,
+  musicGenres:MusicGenre[]
+}
+
+export interface AlbumResponseDTO {
+  id:string,
+  name:string, 
+  image:string,
+  creatorNameId:string,
+  creatorBandName:string
 }

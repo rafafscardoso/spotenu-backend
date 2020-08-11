@@ -111,6 +111,22 @@ export class UserController {
     await BaseDatabase.destroyConnection();
   }
 
+  public updateFreeToPremium = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const userId = req.params.id!;
+
+      const message:SignUpResponseDTO = await UserController.userBusiness.updateFreeToPremium(token, userId);
+
+      res.status(200).send(message);
+    } catch (error) {
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+
+    await BaseDatabase.destroyConnection();
+  }
+
   public getAccessTokenByRefreshToken = async (req:Request, res:Response) => {
     try {
       const refreshToken = req.headers.authorization!;
