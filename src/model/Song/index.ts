@@ -4,6 +4,7 @@ export class Song {
     private name:string, 
     private albumId:string,
     private albumName:string,
+    private albumImage:string,
     private creatorBandId:string,
     private creatorBandName:string
   ) {}
@@ -15,6 +16,8 @@ export class Song {
   public getAlbumId = ():string => this.albumId;
 
   public getAlbumName = ():string => this.albumName;
+
+  public getAlbumImage = ():string => this.albumImage;
 
   public getCreatorBandId = ():string => this.creatorBandId;
 
@@ -36,6 +39,10 @@ export class Song {
     this.albumName = albumName;
   }
 
+  public setAlbumImage = (albumImage:string):void => {
+    this.albumImage = albumImage;
+  }
+
   public setCreatorBandId = (creatorBandId:string):void => {
     this.creatorBandId = creatorBandId;
   }
@@ -45,7 +52,7 @@ export class Song {
   }
 
   public static toSongModel = (song:any):Song => (
-    new Song(song.id, song.name, song.albumId, song.albumName, song.creatorBandId, song.creatorBandName)
+    new Song(song.id, song.name, song.albumId, song.albumName, song.albumImage, song.creatorBandId, song.creatorBandName)
   )
 }
 

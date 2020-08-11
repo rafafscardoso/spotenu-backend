@@ -3,6 +3,7 @@ import express from 'express';
 import { MusicGenreController } from '../../controller/MusicGenreController';
 import { AlbumController } from '../../controller/AlbumController';
 import { SongController } from '../../controller/SongController';
+import { PlaylistController } from '../../controller/PlaylistController';
 
 export const musicRouter = express.Router();
 
@@ -11,6 +12,8 @@ const musicGenreController = new MusicGenreController();
 const albumController = new AlbumController();
 
 const songController = new SongController();
+
+const playlistController = new PlaylistController();
 
 musicRouter.put('/genre/create', musicGenreController.createMusicGenre);
 
@@ -25,3 +28,5 @@ musicRouter.get('/album/:id', albumController.getAlbumById);
 musicRouter.get('/song/query', songController.getSongsByQuery);
 
 musicRouter.get('/song/:id', songController.getSongById);
+
+musicRouter.put('/playlist/create', playlistController.createPlaylist);

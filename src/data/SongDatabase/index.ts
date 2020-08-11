@@ -84,6 +84,7 @@ export class SongDatabase extends BaseDatabase {
           `${s}.name`,
           `${a}.id as albumId`,
           `${a}.name as albumName`,
+          `${a}.image as albumImage`,
           `${u}.id as creatorBandId`,
           `${u}.name as creatorBandName`
         )
