@@ -36,3 +36,9 @@ musicRouter.put('/playlist/song', playlistController.addSongToPlaylist);
 musicRouter.delete('/playlist/song', playlistController.removeSongFromPlaylist);
 
 musicRouter.get('/playlist/all', playlistController.getAllPlaylistsByUserId);
+
+musicRouter.put('/playlist/publish/:id', playlistController.publishPlaylist);
+
+musicRouter.put('/playlist/follow/:id', playlistController.followPlaylist);
+
+musicRouter.get('/playlist/:id', playlistController.getPlaylistById);

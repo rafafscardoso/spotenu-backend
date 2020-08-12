@@ -12,7 +12,7 @@ export class PlaylistUserDatabase extends BaseDatabase {
 
   public followPlaylist = async (input:PlaylistUserDTO):Promise<void> => {
     const playlist_id = input.id;
-    const user_id = input.creatorUserId;
+    const user_id = input.userId;
     try {
       await this.getConnection()
         .insert({ playlist_id, user_id })
@@ -24,10 +24,10 @@ export class PlaylistUserDatabase extends BaseDatabase {
 
   public checkPlaylistFollowed = async (input:PlaylistUserDTO):Promise<boolean> => {
     const playlist_id = input.id;
-    const user_id = input.creatorUserId;
+    const user_id = input.userId;
     try {
       const result = await this.getConnection()
-        .select('playlist_id as id', 'user_id as creatorUserId')
+        .select('playlist_id as id', 'user_id as userId')
         .from(PlaylistUserDatabase.TABLE_NAME)
         .where({ playlist_id, user_id });
       if (result.length) {
