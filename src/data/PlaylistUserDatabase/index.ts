@@ -21,4 +21,21 @@ export class PlaylistUserDatabase extends BaseDatabase {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
   }
+
+  public checkPlaylistFollowed = async (input:PlaylistUserDTO):Promise<boolean> => {
+    const playlist_id = input.id;
+    const user_id = input.creatorUserId;
+    try {
+      const result = await this.getConnection()
+        .select('playlist_id as id', 'user_id as creatorUserId')
+        .from(PlaylistUserDatabase.TABLE_NAME)
+        .where({ playlist_id, user_id });
+      if (result.length) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
 }

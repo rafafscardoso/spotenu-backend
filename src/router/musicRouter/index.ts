@@ -30,3 +30,9 @@ musicRouter.get('/song/query', songController.getSongsByQuery);
 musicRouter.get('/song/:id', songController.getSongById);
 
 musicRouter.put('/playlist/create', playlistController.createPlaylist);
+
+musicRouter.put('/playlist/song', playlistController.addSongToPlaylist);
+
+musicRouter.delete('/playlist/song', playlistController.removeSongFromPlaylist);
+
+musicRouter.get('/playlist/all', playlistController.getAllPlaylistsByUserId);

@@ -4,6 +4,7 @@ export class Playlist {
   constructor (
     private id:string,
     private name:string,
+    private image:string,
     private isPrivate:boolean,
     private creatorUserId:string,
     private creatorUserName:string,
@@ -13,6 +14,8 @@ export class Playlist {
   public getId = ():string => this.id;
 
   public getName = ():string => this.name;
+
+  public getImage = ():string => this.image;
 
   public getIsPrivate = ():boolean => this.isPrivate;
 
@@ -28,6 +31,10 @@ export class Playlist {
 
   public setName = (name:string):void => {
     this.name = name;
+  }
+
+  public setImage = (image:string):void => {
+    this.image = image;
   }
 
   public setIsPrivate = (isPrivate:boolean):void => {
@@ -47,13 +54,19 @@ export class Playlist {
   }
 
   public static toPlaylistModel = (playlist:any):Playlist => (
-    new Playlist(playlist.id, playlist.name, playlist.isPrivate, playlist.creatorUserId, playlist.creatorUserName, playlist.songs)
+    new Playlist(playlist.id, playlist.name, playlist.image, playlist.isPrivate, playlist.creatorUserId, playlist.creatorUserName, playlist.songs)
   )
+}
+
+export interface PlaylistInputDTO {
+  name:string,
+  image:string
 }
 
 export interface PlaylistDTO {
   id:string,
   name:string,
+  image:string,
   isPrivate:boolean,
   creatorUserId:string
 }
@@ -66,4 +79,18 @@ export interface PlaylistUserDTO {
 export interface PlaylistSongDTO {
   id:string,
   songId:string
+}
+
+export interface PlaylistResponseDTO {
+  id:string,
+  name:string,
+  image:string,
+  creatorUserId:string,
+  creatorUserName:string,
+}
+
+export interface AllPlaylistInputDTO {
+  userId:string,
+  page:number,
+  limit?:number
 }

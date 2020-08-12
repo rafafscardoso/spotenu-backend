@@ -81,6 +81,6 @@ export interface AlbumResponseDTO {
   id:string,
   name:string, 
   image:string,
-  creatorNameId:string,
+  creatorBandId:string,
   creatorBandName:string
 }
