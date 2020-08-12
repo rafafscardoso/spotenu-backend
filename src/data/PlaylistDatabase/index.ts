@@ -3,7 +3,7 @@ import { UserDatase } from "../UserDatabase";
 import { PlaylistUserDatabase } from "../PlaylistUserDatabase";
 import { PlaylistSongDatabase } from "../PlaylistSongDatabase";
 
-import { PlaylistDTO, PlaylistResponseDTO, AllPlaylistInputDTO } from "../../model/Playlist";
+import { PlaylistDTO, PlaylistResponseDTO, AllPlaylistInputDTO, PlaylistUserDTO } from "../../model/Playlist";
 
 import { InternalServerError } from "../../error/InternalServerError";
 
@@ -18,7 +18,7 @@ export class PlaylistDatabase extends BaseDatabase {
     const name = input.name;
     const image = input.image;
     const is_private = input.isPrivate ? 1 : 0;
-    const user_id = input.creatorUserId;
+    const user_id = input.userId;
     try {
       await this.getConnection()
         .insert({ id, name, image, is_private, user_id })
@@ -42,8 +42,8 @@ export class PlaylistDatabase extends BaseDatabase {
           `${p}.id`,
           `${p}.name`,
           `${p}.image`,
-          `${u}.id as creatorUserId`,
-          `${u}.name as creatorUserName`
+          `${u}.id as userId`,
+          `${u}.name as userName`
         )
         .from(p)
         .join(pu, `${p}.id`, `${pu}.playlist_id`)
@@ -53,6 +53,72 @@ export class PlaylistDatabase extends BaseDatabase {
         .limit(limit)
         .offset(offset);
       return result;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public checkPlaylistCreatedByUser = async (input:PlaylistUserDTO):Promise<boolean> => {
+    const id = input.id;
+    const user_id = input.userId;
+    try {
+      const result = await this.getConnection()
+        .select('id', 'user_id as userId')
+        .from(PlaylistDatabase.TABLE_NAME)
+        .where({ id, user_id });
+      if (result.length) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public checkPlaylistPrivate = async (id:string):Promise<boolean> => {
+    const is_private = true ? 1 : 0;
+    try {
+      const result = await this.getConnection()
+        .select('id', 'user_id userId')
+        .from(PlaylistDatabase.TABLE_NAME)
+        .where({ id, is_private });
+      if (result.length) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public publishPlaylist = async (id:string):Promise<void> => {
+    const is_private = false ? 1 : 0;
+    try {
+      await this.getConnection()
+        .update({ is_private })
+        .from(PlaylistDatabase.TABLE_NAME)
+        .where({ id })
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getPlaylistById = async (id:string):Promise<PlaylistResponseDTO> => {
+    const p = PlaylistDatabase.TABLE_NAME;
+    const u = UserDatase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${p}.id`,
+          `${p}.name`,
+          `${p}.image`,
+          `${u}.id as userId`,
+          `${u}.name as userName`
+        )
+        .from(p)
+        .join(u, `${p}.user_id`, `${u}.id`)
+        .where(`${p}.id`, id);
+      return result[0];
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

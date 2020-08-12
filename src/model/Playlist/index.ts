@@ -1,4 +1,4 @@
-import { SongAlbumDTO } from "../Song";
+import { Song } from "../Song";
 
 export class Playlist {
   constructor (
@@ -6,9 +6,9 @@ export class Playlist {
     private name:string,
     private image:string,
     private isPrivate:boolean,
-    private creatorUserId:string,
-    private creatorUserName:string,
-    private songs:SongAlbumDTO[]
+    private userId:string,
+    private userName:string,
+    private songs:Song[]
   ) {}
 
   public getId = ():string => this.id;
@@ -19,11 +19,11 @@ export class Playlist {
 
   public getIsPrivate = ():boolean => this.isPrivate;
 
-  public getCreatorUserId = ():string => this.creatorUserId;
+  public getUserId = ():string => this.userId;
 
-  public getCreatorUserName = ():string => this.creatorUserName;
+  public getUserName = ():string => this.userName;
 
-  public getSongs = ():SongAlbumDTO[] => this.songs;
+  public getSongs = ():Song[] => this.songs;
 
   public setId = (id:string):void => {
     this.id = id;
@@ -41,20 +41,20 @@ export class Playlist {
     this.isPrivate = isPrivate;
   }
 
-  public setCreatorUserId = (creatorUserId:string):void => {
-    this.creatorUserId = creatorUserId;
+  public setUserId = (userId:string):void => {
+    this.userId = userId;
   }
 
-  public setCreatorUserName = (creatorUserName:string):void => {
-    this.creatorUserName = creatorUserName;
+  public setUserName = (userName:string):void => {
+    this.userName = userName;
   }
 
-  public setSongs = (songs:SongAlbumDTO[]):void => {
+  public setSongs = (songs:Song[]):void => {
     this.songs = songs;
   }
 
   public static toPlaylistModel = (playlist:any):Playlist => (
-    new Playlist(playlist.id, playlist.name, playlist.image, playlist.isPrivate, playlist.creatorUserId, playlist.creatorUserName, playlist.songs)
+    new Playlist(playlist.id, playlist.name, playlist.image, playlist.isPrivate, playlist.userId, playlist.userName, playlist.songs)
   )
 }
 
@@ -68,12 +68,12 @@ export interface PlaylistDTO {
   name:string,
   image:string,
   isPrivate:boolean,
-  creatorUserId:string
+  userId:string
 }
 
 export interface PlaylistUserDTO {
   id:string,
-  creatorUserId:string
+  userId:string
 }
 
 export interface PlaylistSongDTO {
@@ -85,12 +85,18 @@ export interface PlaylistResponseDTO {
   id:string,
   name:string,
   image:string,
-  creatorUserId:string,
-  creatorUserName:string,
+  userId:string,
+  userName:string,
 }
 
 export interface AllPlaylistInputDTO {
   userId:string,
+  page:number,
+  limit?:number
+}
+
+export interface PlaylistByIdInputDTO {
+  id:string,
   page:number,
   limit?:number
 }
