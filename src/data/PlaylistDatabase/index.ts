@@ -4,6 +4,7 @@ import { PlaylistUserDatabase } from "../PlaylistUserDatabase";
 import { PlaylistSongDatabase } from "../PlaylistSongDatabase";
 
 import { PlaylistDTO, PlaylistResponseDTO, AllPlaylistInputDTO, PlaylistUserDTO } from "../../model/Playlist";
+import { SongQueryDTO } from "../../model/Song";
 
 import { InternalServerError } from "../../error/InternalServerError";
 
@@ -119,6 +120,30 @@ export class PlaylistDatabase extends BaseDatabase {
         .join(u, `${p}.user_id`, `${u}.id`)
         .where(`${p}.id`, id);
       return result[0];
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getPlaylistsByQuery = async (input:SongQueryDTO):Promise<PlaylistResponseDTO[]> => {
+    const query = input.query;
+    const limit = input.limit;
+    const offset = limit * (input.page - 1);
+    const p = PlaylistDatabase.TABLE_NAME;
+    const u = UserDatase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${p}.id`,
+          `${p}.name`,
+          `${p}.image`,
+          `${u}.id as userId`,
+          `${u}.name as userName`
+        )
+        .from(p)
+        .join(u, `${p}.user_id`, `${u}.id`)
+        .where(`${p}.name`, query);
+      return result;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

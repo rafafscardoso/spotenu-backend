@@ -6,6 +6,7 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
 import { User, SignUpResponseDTO, USER_ROLES } from "../../model/User";
+import { SongQueryDTO } from "../../model/Song";
 import { Playlist, PlaylistDTO, PlaylistUserDTO, PlaylistSongDTO, PlaylistInputDTO, PlaylistResponseDTO, AllPlaylistInputDTO, PlaylistByIdInputDTO } from "../../model/Playlist";
 
 import { UnauthorizedError } from "../../error/UnauthorizedError";
@@ -209,5 +210,27 @@ export class PlaylistBusiness {
     const playlist = Playlist.toPlaylistModel(playlistInput);
 
     return playlist;
+  }
+
+  public getPlaylistsByQuery = async (token:string, input:SongQueryDTO):Promise<PlaylistResponseDTO[]> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
+      throw new UnauthorizedError('Only accessible for premium user');
+    }
+
+    const { query } = input;
+
+    if (!query) {
+      throw new InvalidParameterError('Missing parameters');
+    }
+
+    const limit = 10;
+
+    const queryInput:SongQueryDTO = { ...input, limit };
+
+    const playlists:PlaylistResponseDTO[] = await this.playlistDatabase.getPlaylistsByQuery(queryInput);
+
+    return playlists;
   }
 }

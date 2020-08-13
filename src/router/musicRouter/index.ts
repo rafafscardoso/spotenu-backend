@@ -23,6 +23,8 @@ musicRouter.put('/album/create', albumController.createAlbum);
 
 musicRouter.put('/song/create', songController.createSong);
 
+musicRouter.get('/album/query', albumController.getAlbumsByQuery);
+
 musicRouter.get('/album/:id', albumController.getAlbumById);
 
 musicRouter.get('/song/query', songController.getSongsByQuery);
@@ -40,5 +42,7 @@ musicRouter.get('/playlist/all', playlistController.getAllPlaylistsByUserId);
 musicRouter.put('/playlist/publish/:id', playlistController.publishPlaylist);
 
 musicRouter.put('/playlist/follow/:id', playlistController.followPlaylist);
+
+musicRouter.get('/playlist/query', playlistController.getPlaylistsByQuery);
 
 musicRouter.get('/playlist/:id', playlistController.getPlaylistById);

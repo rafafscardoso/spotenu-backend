@@ -9,7 +9,7 @@ import { AlbumDatabase } from "../../data/AlbumDatabase";
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
 
-import { Song, SongInputDTO, SongAlbumDTO } from '../../model/Song';
+import { Song, SongInputDTO, SongAlbumDTO, SongQueryDTO } from '../../model/Song';
 import { SignUpResponseDTO } from '../../model/User';
 
 export class SongController {
@@ -44,7 +44,9 @@ export class SongController {
 
       const page = Number(req.query.page);
 
-      const songs:SongAlbumDTO[] = await SongController.songBusiness.getSongsByQuery(token, { query, page });
+      const input:SongQueryDTO = { query, page };
+
+      const songs:SongAlbumDTO[] = await SongController.songBusiness.getSongsByQuery(token, input);
 
       res.status(200).send({ songs });
     } catch (error) {

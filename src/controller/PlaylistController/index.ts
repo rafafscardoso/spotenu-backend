@@ -12,6 +12,7 @@ import { Authenticator } from '../../service/Authenticator';
 
 import { Playlist, PlaylistInputDTO, PlaylistSongDTO, PlaylistResponseDTO, PlaylistByIdInputDTO } from '../../model/Playlist';
 import { SignUpResponseDTO } from '../../model/User';
+import { SongQueryDTO } from '../../model/Song';
 
 export class PlaylistController {
   private static playlistBusiness = new PlaylistBusiness(
@@ -131,6 +132,26 @@ export class PlaylistController {
       const playlist:Playlist = await PlaylistController.playlistBusiness.getPlaylistById(token, input);
 
       res.status(200).send(playlist);
+    } catch (error) {
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+
+    await BaseDatabase.destroyConnection();
+  }
+
+  public getPlaylistsByQuery = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const query = req.query.query as string;
+
+      const page = Number(req.query.page);
+
+      const input:SongQueryDTO = { query, page };
+
+      const playlists:PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getPlaylistsByQuery(token,input);
+
+      res.status(200).send({ playlists });
     } catch (error) {
       res.status(error.statusCode || 400).send({ message: error.message });
     }

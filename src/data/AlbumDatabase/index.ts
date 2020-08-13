@@ -2,6 +2,7 @@ import { BaseDatabase } from '../BaseDatabase';
 import { UserDatase } from '../UserDatabase';
 
 import { AlbumDTO, AlbumResponseDTO } from '../../model/Album';
+import { SongQueryDTO } from '../../model/Song';
 
 import { InternalServerError } from "../../error/InternalServerError";
 
@@ -56,6 +57,32 @@ export class AlbumDatabase extends BaseDatabase {
         .join(u, `${a}.band_id`, `${u}.id`)
         .where(`${a}.id`, id);
       return result[0];
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getAlbumsByQuery = async (input:SongQueryDTO):Promise<AlbumResponseDTO[]> => {
+    const query = input.query;
+    const limit = input.limit;
+    const offset = limit * (input.page - 1);
+    const a = AlbumDatabase.TABLE_NAME;
+    const u = UserDatase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${a}.id`,
+          `${a}.name`,
+          `${a}.image`,
+          `${u}.id as creatorBandId`,
+          `${u}.name as creatorBandName`
+        )
+        .from(a)
+        .join(u, `${u}.id`, `${a}.creatorBandId`)
+        .where(`${a}.name`, query)
+        .limit(limit)
+        .offset(offset);
+      return result;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
