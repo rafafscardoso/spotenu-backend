@@ -7,7 +7,17 @@ import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
 import { User, SignUpResponseDTO, USER_ROLES } from "../../model/User";
 import { SongQueryDTO } from "../../model/Song";
-import { Playlist, PlaylistDTO, PlaylistUserDTO, PlaylistSongDTO, PlaylistInputDTO, PlaylistResponseDTO, AllPlaylistInputDTO, PlaylistByIdInputDTO } from "../../model/Playlist";
+import { 
+  Playlist, 
+  PlaylistDTO, 
+  PlaylistUserDTO, 
+  PlaylistSongDTO, 
+  PlaylistInputDTO, 
+  PlaylistResponseDTO, 
+  AllPlaylistInputDTO, 
+  PlaylistByIdInputDTO, 
+  EditPlaylistDTO 
+} from "../../model/Playlist";
 
 import { UnauthorizedError } from "../../error/UnauthorizedError";
 import { InvalidParameterError } from "../../error/InvalidParameterError";
@@ -232,5 +242,28 @@ export class PlaylistBusiness {
     const playlists:PlaylistResponseDTO[] = await this.playlistDatabase.getPlaylistsByQuery(queryInput);
 
     return playlists;
+  }
+
+  public editPlaylist = async (token:string, input:EditPlaylistDTO):Promise<SignUpResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    const { id } = input;
+
+    if (!id) {
+      throw new InvalidParameterError('Missing parameters');
+    }
+
+    const userId = authData.id;
+    const playlistUserInput:PlaylistUserDTO = { id, userId };
+
+    const checkPlaylistFollowed = await this.playlistUserDatabase.checkPlaylistFollowed(playlistUserInput);
+
+    if (!checkPlaylistFollowed) {
+      throw new InvalidParameterError('Playlist is not followed by user');
+    }
+
+    await this.playlistDatabase.editPlaylist(input);
+
+    return { message: 'Playlist edited successfully' };
   }
 }

@@ -1,15 +1,15 @@
 import { BaseDatabase } from "../BaseDatabase";
 
-import { User, USER_ROLES } from "../../model/User";
+import { User, USER_ROLES, EditProfileDTO } from "../../model/User";
 import { Band, GetAllBandsResponseDTO, ProfileResponseDTO } from "../../model/Band";
 
 import { InternalServerError } from "../../error/InternalServerError";
 
-export class UserDatase extends BaseDatabase {
+export class UserDatabase extends BaseDatabase {
 
   private static TABLE_NAME:string = 'spotenuUser';
 
-  public static getTableName = ():string => UserDatase.TABLE_NAME;
+  public static getTableName = ():string => UserDatabase.TABLE_NAME;
 
   public createUser = async (input:User):Promise<void> => {
     const id = input.getId();
@@ -22,7 +22,7 @@ export class UserDatase extends BaseDatabase {
     try {
       await this.getConnection()
         .insert({ id, name, nickname, email, password, role, image })
-        .into(UserDatase.TABLE_NAME);
+        .into(UserDatabase.TABLE_NAME);
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
@@ -41,7 +41,7 @@ export class UserDatase extends BaseDatabase {
     try {
       await this.getConnection()
         .insert({ id, name, nickname, email, password, role, image, description, is_approved })
-        .into(UserDatase.TABLE_NAME);
+        .into(UserDatabase.TABLE_NAME);
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
@@ -51,10 +51,10 @@ export class UserDatase extends BaseDatabase {
     try {
       const result = await this.getConnection()
         .select('id', 'name', 'nickname', 'email', 'password', 'role', 'image', 'description', 'is_approved as isApproved')
-        .from(UserDatase.TABLE_NAME)
+        .from(UserDatabase.TABLE_NAME)
         .where({ nickname: query })
         .orWhere({ email: query });
-      if (!result[0]) {
+      if (!result.length) {
         return undefined;
       }
       if (User.stringToUserRole(result[0].role) === USER_ROLES.BAND) {
@@ -70,9 +70,9 @@ export class UserDatase extends BaseDatabase {
     try {
       const result = await this.getConnection()
         .select('id', 'name', 'nickname', 'email', 'role', 'image', 'description', 'is_approved as isApproved')
-        .from(UserDatase.TABLE_NAME)
+        .from(UserDatabase.TABLE_NAME)
         .where({ id });
-      if (!result[0]) {
+      if (!result.length) {
         return undefined;
       }
       if (User.stringToUserRole(result[0].role) === USER_ROLES.BAND) {
@@ -90,7 +90,7 @@ export class UserDatase extends BaseDatabase {
     try {
       const result = await this.getConnection()
         .select('name', 'nickname', 'email','image', 'is_approved as isApproved')
-        .from(UserDatase.TABLE_NAME)
+        .from(UserDatabase.TABLE_NAME)
         .where({ role });
       return result.map((item:any) => {
         return { ...item, isApproved: item.isApproved ? true : false };
@@ -105,7 +105,7 @@ export class UserDatase extends BaseDatabase {
     try {
       await this.getConnection()
         .update({ is_approved })
-        .from(UserDatase.TABLE_NAME)
+        .from(UserDatabase.TABLE_NAME)
         .where({ id });
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
@@ -117,7 +117,28 @@ export class UserDatase extends BaseDatabase {
     try {
       await this.getConnection()
         .update({ role })
-        .from(UserDatase.TABLE_NAME)
+        .from(UserDatabase.TABLE_NAME)
+        .where({ id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public editProfile = async (input:EditProfileDTO):Promise<void> => {
+    const id = input.id;
+    const name = input.name;
+    const image = input.image;
+    let editInput:any = {}
+    if (name) {
+      editInput = { ...editInput, name };
+    }
+    if (image) {
+      editInput = { ...editInput, image };
+    }
+    try {
+      await this.getConnection()
+        .update(editInput)
+        .from(UserDatabase.TABLE_NAME)
         .where({ id });
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);

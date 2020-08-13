@@ -91,6 +91,12 @@ export interface SignUpResponseDTO {
   message:string
 }
 
+export interface EditProfileDTO {
+  id?:string;
+  name:string;
+  image:string;
+}
+
 export enum USER_ROLES {
   BAND = 'BAND',
   FREE = 'FREE',

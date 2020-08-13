@@ -1,7 +1,7 @@
 import { BaseDatabase } from '../BaseDatabase';
-import { UserDatase } from '../UserDatabase';
+import { UserDatabase } from '../UserDatabase';
 
-import { AlbumDTO, AlbumResponseDTO } from '../../model/Album';
+import { AlbumDTO, AlbumResponseDTO, AlbumBandDTO } from '../../model/Album';
 import { SongQueryDTO } from '../../model/Song';
 
 import { InternalServerError } from "../../error/InternalServerError";
@@ -41,9 +41,26 @@ export class AlbumDatabase extends BaseDatabase {
     }
   }
 
+  public checkAlbumByIdAndBandId = async (input:AlbumBandDTO):Promise<boolean> => {
+    const id = input.id;
+    const band_id = input.creatorBandId;
+    try {
+      const result = await this.getConnection()
+        .select('id', 'name', 'image', 'band_id as creatorBandId')
+        .from(AlbumDatabase.TABLE_NAME)
+        .where({ id, band_id });
+      if (result.length) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
   public getAlbumById = async (id:string):Promise<AlbumResponseDTO> => {
     const a = AlbumDatabase.TABLE_NAME;
-    const u = UserDatase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
         .select(
@@ -67,7 +84,7 @@ export class AlbumDatabase extends BaseDatabase {
     const limit = input.limit;
     const offset = limit * (input.page - 1);
     const a = AlbumDatabase.TABLE_NAME;
-    const u = UserDatase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
         .select(

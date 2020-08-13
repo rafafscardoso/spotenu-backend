@@ -1,9 +1,9 @@
 import { BaseDatabase } from "../BaseDatabase";
-import { UserDatase } from "../UserDatabase";
+import { UserDatabase } from "../UserDatabase";
 import { PlaylistUserDatabase } from "../PlaylistUserDatabase";
 import { PlaylistSongDatabase } from "../PlaylistSongDatabase";
 
-import { PlaylistDTO, PlaylistResponseDTO, AllPlaylistInputDTO, PlaylistUserDTO } from "../../model/Playlist";
+import { PlaylistDTO, PlaylistResponseDTO, AllPlaylistInputDTO, PlaylistUserDTO, EditPlaylistDTO } from "../../model/Playlist";
 import { SongQueryDTO } from "../../model/Song";
 
 import { InternalServerError } from "../../error/InternalServerError";
@@ -36,7 +36,7 @@ export class PlaylistDatabase extends BaseDatabase {
     const p = PlaylistDatabase.TABLE_NAME;
     const pu = PlaylistUserDatabase.getTableName();
     const ps = PlaylistSongDatabase.getTableName();
-    const u = UserDatase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
         .select(
@@ -106,7 +106,7 @@ export class PlaylistDatabase extends BaseDatabase {
 
   public getPlaylistById = async (id:string):Promise<PlaylistResponseDTO> => {
     const p = PlaylistDatabase.TABLE_NAME;
-    const u = UserDatase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
         .select(
@@ -130,7 +130,7 @@ export class PlaylistDatabase extends BaseDatabase {
     const limit = input.limit;
     const offset = limit * (input.page - 1);
     const p = PlaylistDatabase.TABLE_NAME;
-    const u = UserDatase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
         .select(
@@ -142,8 +142,31 @@ export class PlaylistDatabase extends BaseDatabase {
         )
         .from(p)
         .join(u, `${p}.user_id`, `${u}.id`)
-        .where(`${p}.name`, query);
+        .where(`${p}.name`, query)
+        .limit(limit)
+        .offset(offset);
       return result;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public editPlaylist = async (input:EditPlaylistDTO):Promise<void> => {
+    const id = input.id;
+    const name = input.name;
+    const image = input.image;
+    let editInput:any = {};
+    if (name) {
+      editInput = { ...editInput, name };
+    }
+    if (image) {
+      editInput = { ...editInput, image };
+    }
+    try {
+      await this.getConnection()
+        .update(editInput)
+        .from(PlaylistDatabase.TABLE_NAME)
+        .where({ id });
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

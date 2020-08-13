@@ -1,7 +1,7 @@
 import { BaseDatabase } from "../BaseDatabase";
 import { SongDatabase } from "../SongDatabase";
 import { AlbumDatabase } from "../AlbumDatabase";
-import { UserDatase } from "../UserDatabase";
+import { UserDatabase } from "../UserDatabase";
 
 import { PlaylistSongDTO, PlaylistByIdInputDTO } from "../../model/Playlist";
 import { Song } from "../../model/Song";
@@ -63,7 +63,7 @@ export class PlaylistSongDatabase extends BaseDatabase {
     const ps = PlaylistSongDatabase.TABLE_NAME;
     const s = SongDatabase.getTableName();
     const a = AlbumDatabase.getTableName();
-    const u = UserDatase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
         .select(
