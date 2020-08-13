@@ -59,44 +59,50 @@ export class Playlist {
 }
 
 export interface PlaylistInputDTO {
-  name:string,
-  image:string
+  name:string;
+  image:string;
 }
 
 export interface PlaylistDTO {
-  id:string,
-  name:string,
-  image:string,
-  isPrivate:boolean,
-  userId:string
+  id:string;
+  name:string;
+  image:string;
+  isPrivate:boolean;
+  userId:string;
 }
 
 export interface PlaylistUserDTO {
-  id:string,
-  userId:string
+  id:string;
+  userId:string;
 }
 
 export interface PlaylistSongDTO {
-  id:string,
-  songId:string
+  id:string;
+  songId:string;
 }
 
 export interface PlaylistResponseDTO {
-  id:string,
-  name:string,
-  image:string,
-  userId:string,
-  userName:string,
+  id:string;
+  name:string;
+  image:string;
+  userId:string;
+  userName:string;
 }
 
 export interface AllPlaylistInputDTO {
-  userId:string,
-  page:number,
-  limit?:number
+  userId:string;
+  page:number;
+  limit?:number;
 }
 
 export interface PlaylistByIdInputDTO {
-  id:string,
-  page:number,
-  limit?:number
+  id:string;
+  page:number;
+  limit?:number;
+}
+
+export interface EditPlaylistDTO {
+  id:string;
+  name:string;
+  image:string;
 }

@@ -6,6 +6,7 @@ import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
 import { Song, SongDTO, SongInputDTO, SongQueryDTO, SongAlbumDTO } from "../../model/Song";
 import { User, SignUpResponseDTO, USER_ROLES } from "../../model/User";
+import { AlbumBandDTO } from "../../model/Album";
 
 import { UnauthorizedError } from "../../error/UnauthorizedError";
 import { InvalidParameterError } from "../../error/InvalidParameterError";
@@ -36,6 +37,14 @@ export class SongBusiness {
 
     if (!checkAlbumExist) {
       throw new NotFoundError('Album not found');
+    }
+
+    const checkAlbumByBandInput:AlbumBandDTO = { id: albumId, creatorBandId: authData.id };
+
+    const checkAlbumByBand = await this.albumDatabase.checkAlbumByIdAndBandId(checkAlbumByBandInput);
+
+    if (!checkAlbumByBand) {
+      throw new InvalidParameterError('Album was not created by this band');
     }
 
     const checkSongExist = await this.songDatabase.checkSongByNameAndAlbum(input);
@@ -92,5 +101,40 @@ export class SongBusiness {
     }
 
     return song;
+  }
+
+  public editSong = async (token:string, input:SongDTO):Promise<SignUpResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {
+      throw new UnauthorizedError('Only accessible for band');
+    }
+
+    const { id, albumId } = input;
+
+    if (!id) {
+      throw new InvalidParameterError('Missing parameters');
+    }
+
+    if (albumId) {
+
+      const checkAlbumExist = await this.albumDatabase.checkAlbumById(albumId);
+
+      if (!checkAlbumExist) {
+        throw new NotFoundError('Album not found');
+      }
+
+      const checkAlbumByBandInput:AlbumBandDTO = { id: albumId, creatorBandId: authData.id };
+      
+      const checkAlbumByBand = await this.albumDatabase.checkAlbumByIdAndBandId(checkAlbumByBandInput);
+      
+      if (!checkAlbumByBand) {
+        throw new InvalidParameterError('Album was not created by this band');
+      }
+    }
+
+    await this.songDatabase.editSong(input);
+
+    return { message: 'Song edited successfully' };
   }
 }

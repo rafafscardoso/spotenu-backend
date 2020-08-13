@@ -46,3 +46,7 @@ musicRouter.put('/playlist/follow/:id', playlistController.followPlaylist);
 musicRouter.get('/playlist/query', playlistController.getPlaylistsByQuery);
 
 musicRouter.get('/playlist/:id', playlistController.getPlaylistById);
+
+musicRouter.put('/playlist/edit/:id', playlistController.editPlaylist);
+
+musicRouter.put('/song/edit/:id', songController.editSong);

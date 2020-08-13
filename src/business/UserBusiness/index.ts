@@ -1,11 +1,11 @@
-import { UserDatase } from "../../data/UserDatabase";
+import { UserDatabase } from "../../data/UserDatabase";
 import { RefreshTokenDatabase } from "../../data/RefreshTokenDatabase";
 
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
-import { User, SignUpInputDTO, LoginInputDTO, SignUpResponseDTO, USER_ROLES } from '../../model/User';
+import { User, SignUpInputDTO, LoginInputDTO, SignUpResponseDTO, USER_ROLES, EditProfileDTO } from '../../model/User';
 import { Band, GetAllBandsResponseDTO } from "../../model/Band";
 import { RefreshToken, TokenResponseDTO, RefreshTokenInputDTO } from "../../model/RefreshToken";
 
@@ -15,7 +15,7 @@ import { NotFoundError } from "../../error/NotFoundError";
 
 export class UserBusiness {
   constructor (
-    private userDatabase:UserDatase,
+    private userDatabase:UserDatabase,
     private refreshTokenDatabase:RefreshTokenDatabase,
     private idGenerator:IdGenerator,
     private authenticator:Authenticator,
@@ -199,6 +199,18 @@ export class UserBusiness {
     await this.userDatabase.updateFreeToPremium(userId);
 
     return { message: 'Updated to premium successfully' };
+  }
+
+  public editProfile = async (token:string, input:EditProfileDTO):Promise<SignUpResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    const id = authData.id;
+
+    const editInput:EditProfileDTO = { ...input, id };
+
+    await this.userDatabase.editProfile(editInput);
+
+    return { message: 'Profile edited successfully' };
   }
 
   public getAccessTokenByRefreshToken = async (input:RefreshTokenInputDTO):Promise<TokenResponseDTO> => {

@@ -1,6 +1,6 @@
 import { BaseDatabase } from "../BaseDatabase";
 import { AlbumDatabase } from "../AlbumDatabase";
-import { UserDatase } from "../UserDatabase";
+import { UserDatabase } from "../UserDatabase";
 
 import { Song, SongDTO, SongInputDTO, SongAlbumDTO, SongQueryDTO } from "../../model/Song";
 
@@ -76,7 +76,7 @@ export class SongDatabase extends BaseDatabase {
   public getSongById = async (id:string):Promise<Song> => {
     const s = SongDatabase.TABLE_NAME;
     const a = AlbumDatabase.getTableName();
-    const u = UserDatase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
         .select(
@@ -93,6 +93,27 @@ export class SongDatabase extends BaseDatabase {
         .join(u, `${a}.band_id`, `${u}.id`)
         .where(`${s}.id`, id);
       return Song.toSongModel(result[0]);
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public editSong = async (input:SongDTO):Promise<void> => {
+    const id = input.id;
+    const name = input.name;
+    const album_id = input.albumId;
+    let editInput:any = {};
+    if (name) {
+      editInput = { ...editInput, name };
+    }
+    if (album_id) {
+      editInput = { ...editInput, album_id };
+    }
+    try {
+      await this.getConnection()
+        .update(editInput)
+        .from(SongDatabase.TABLE_NAME)
+        .where({ id });
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

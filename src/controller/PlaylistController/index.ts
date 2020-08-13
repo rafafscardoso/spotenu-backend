@@ -10,7 +10,7 @@ import { PlaylistSongDatabase } from '../../data/PlaylistSongDatabase';
 import { IdGenerator } from '../../service/IdGenerator';
 import { Authenticator } from '../../service/Authenticator';
 
-import { Playlist, PlaylistInputDTO, PlaylistSongDTO, PlaylistResponseDTO, PlaylistByIdInputDTO } from '../../model/Playlist';
+import { Playlist, PlaylistInputDTO, PlaylistSongDTO, PlaylistResponseDTO, PlaylistByIdInputDTO, EditPlaylistDTO } from '../../model/Playlist';
 import { SignUpResponseDTO } from '../../model/User';
 import { SongQueryDTO } from '../../model/Song';
 
@@ -152,6 +152,26 @@ export class PlaylistController {
       const playlists:PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getPlaylistsByQuery(token,input);
 
       res.status(200).send({ playlists });
+    } catch (error) {
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+
+    await BaseDatabase.destroyConnection();
+  }
+
+  public editPlaylist = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const id = req.params.id as string;
+
+      const { name, image } = req.body;
+
+      const input:EditPlaylistDTO = { id, name, image };
+
+      const message = await PlaylistController.playlistBusiness.editPlaylist(token,input);
+
+      res.status(200).send(message);
     } catch (error) {
       res.status(error.statusCode || 400).send({ message: error.message });
     }

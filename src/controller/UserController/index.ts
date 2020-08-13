@@ -3,20 +3,20 @@ import { Request, Response } from 'express';
 import { UserBusiness } from "../../business/UserBusiness";
 
 import { BaseDatabase } from '../../data/BaseDatabase';
-import { UserDatase } from "../../data/UserDatabase";
+import { UserDatabase } from "../../data/UserDatabase";
 import { RefreshTokenDatabase } from "../../data/RefreshTokenDatabase";
 
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
-import { SignUpInputDTO, SignUpResponseDTO, LoginInputDTO } from '../../model/User';
-import { TokenResponseDTO } from '../../model/RefreshToken';
+import { SignUpInputDTO, SignUpResponseDTO, LoginInputDTO, EditProfileDTO } from '../../model/User';
 import { GetAllBandsResponseDTO } from '../../model/Band';
+import { TokenResponseDTO, RefreshTokenInputDTO } from '../../model/RefreshToken';
 
 export class UserController {
   private static userBusiness = new UserBusiness(
-    new UserDatase(),
+    new UserDatabase(),
     new RefreshTokenDatabase(),
     new IdGenerator(),
     new Authenticator(),
@@ -99,7 +99,7 @@ export class UserController {
     try {
       const token = req.headers.authorization!;
 
-      const bandId = req.params.id!;
+      const bandId = req.params.id as string;
 
       const message:SignUpResponseDTO = await UserController.userBusiness.approveBand(token, bandId);
 
@@ -115,9 +115,25 @@ export class UserController {
     try {
       const token = req.headers.authorization!;
 
-      const userId = req.params.id!;
+      const userId = req.params.id as string;
 
       const message:SignUpResponseDTO = await UserController.userBusiness.updateFreeToPremium(token, userId);
+
+      res.status(200).send(message);
+    } catch (error) {
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+
+    await BaseDatabase.destroyConnection();
+  }
+
+  public editProfile = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const input:EditProfileDTO = req.body;
+
+      const message = await UserController.userBusiness.editProfile(token, input);
 
       res.status(200).send(message);
     } catch (error) {
@@ -133,7 +149,7 @@ export class UserController {
 
       const { device } = req.body;
 
-      const input = { refreshToken, device };
+      const input:RefreshTokenInputDTO = { refreshToken, device };
 
       const token:TokenResponseDTO = await UserController.userBusiness.getAccessTokenByRefreshToken(input);
 

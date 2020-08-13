@@ -60,27 +60,32 @@ export class Album {
 }
 
 export interface AlbumDTO {
-  id:string,
-  name:string,
-  image:string,
-  creatorBandId:string
+  id:string;
+  name:string;
+  image:string;
+  creatorBandId:string;
 }
 
 export interface AlbumInputDTO {
-  name:string,
-  image:string,
-  musicGenres:MusicGenre[]
+  name:string;
+  image:string;
+  musicGenres:MusicGenre[];
 }
 
 export interface AlbumGenreDTO {
-  id?:string,
-  musicGenres:MusicGenre[]
+  id?:string;
+  musicGenres:MusicGenre[];
 }
 
 export interface AlbumResponseDTO {
-  id:string,
-  name:string, 
-  image:string,
-  creatorBandId:string,
-  creatorBandName:string
+  id:string;
+  name:string; 
+  image:string;
+  creatorBandId:string;
+  creatorBandName:string;
+}
+
+export interface AlbumBandDTO {
+  id:string;
+  creatorBandId:string;
 }

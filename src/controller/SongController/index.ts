@@ -9,7 +9,7 @@ import { AlbumDatabase } from "../../data/AlbumDatabase";
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
 
-import { Song, SongInputDTO, SongAlbumDTO, SongQueryDTO } from '../../model/Song';
+import { Song, SongInputDTO, SongAlbumDTO, SongQueryDTO, SongDTO } from '../../model/Song';
 import { SignUpResponseDTO } from '../../model/User';
 
 export class SongController {
@@ -65,6 +65,26 @@ export class SongController {
       const song:Song = await SongController.songBusiness.getSongById(token, songId);
 
       res.status(200).send(song);
+    } catch (error) {
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+
+    await BaseDatabase.destroyConnection();
+  }
+
+  public editSong = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const id = req.params.id as string;
+
+      const { name, albumId } = req.body;
+
+      const input:SongDTO = { id, name, albumId };
+
+      const message = await SongController.songBusiness.editSong(token, input);
+
+      res.status(200).send(message);
     } catch (error) {
       res.status(error.statusCode || 400).send({ message: error.message });
     }
