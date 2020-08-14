@@ -6,4 +6,4 @@ export const fileRouter = express.Router();
 
 const fileController = new FileController();
 
-fileRouter.put('/upload', fileController.fileUpload);
+fileRouter.post('/upload', fileController.uploadFile);

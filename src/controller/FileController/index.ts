@@ -5,7 +5,7 @@ import { S3Service, UploadFileInputDTO, UploadFileResponseDTO } from '../../serv
 import { InvalidParameterError } from '../../error/InvalidParameterError';
 
 export class FileController {
-  public fileUpload = async (req:Request, res:Response) => {
+  public uploadFile = async (req:Request, res:Response) => {
     try {
       const file = req.files && (req.files.file as any);
 
