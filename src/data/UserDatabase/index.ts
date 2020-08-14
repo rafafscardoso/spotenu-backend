@@ -89,7 +89,7 @@ export class UserDatabase extends BaseDatabase {
     const role = User.stringToUserRole('band');
     try {
       const result = await this.getConnection()
-        .select('name', 'nickname', 'email','image', 'is_approved as isApproved')
+        .select('id', 'name', 'nickname', 'email', 'image', 'is_approved as isApproved')
         .from(UserDatabase.TABLE_NAME)
         .where({ role });
       return result.map((item:any) => {

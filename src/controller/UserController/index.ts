@@ -11,7 +11,7 @@ import { Authenticator } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
 import { SignUpInputDTO, SignUpResponseDTO, LoginInputDTO, EditProfileDTO } from '../../model/User';
-import { GetAllBandsResponseDTO } from '../../model/Band';
+import { GetAllBandsResponseDTO, ProfileResponseDTO } from '../../model/Band';
 import { TokenResponseDTO, RefreshTokenInputDTO } from '../../model/RefreshToken';
 
 export class UserController {
@@ -120,6 +120,20 @@ export class UserController {
       const message:SignUpResponseDTO = await UserController.userBusiness.updateFreeToPremium(token, userId);
 
       res.status(200).send(message);
+    } catch (error) {
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+
+    await BaseDatabase.destroyConnection();
+  }
+
+  public getProfile = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const user:ProfileResponseDTO = await UserController.userBusiness.getProfile(token);
+
+      res.status(200).send(user);
     } catch (error) {
       res.status(error.statusCode || 400).send({ message: error.message });
     }

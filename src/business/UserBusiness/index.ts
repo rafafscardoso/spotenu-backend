@@ -6,7 +6,7 @@ import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
 import { User, SignUpInputDTO, LoginInputDTO, SignUpResponseDTO, USER_ROLES, EditProfileDTO } from '../../model/User';
-import { Band, GetAllBandsResponseDTO } from "../../model/Band";
+import { Band, GetAllBandsResponseDTO, ProfileResponseDTO } from "../../model/Band";
 import { RefreshToken, TokenResponseDTO, RefreshTokenInputDTO } from "../../model/RefreshToken";
 
 import { InvalidParameterError } from "../../error/InvalidParameterError";
@@ -111,7 +111,7 @@ export class UserBusiness {
       throw new InvalidParameterError('Missing parameters');
     }
 
-    const user = await this.userDatabase.getUserByQuery(login);
+    const user:User = await this.userDatabase.getUserByQuery(login);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -187,7 +187,7 @@ export class UserBusiness {
       throw new UnauthorizedError('Only accessible for admin');
     }
 
-    const user = await this.userDatabase.getUserById(userId);
+    const user:ProfileResponseDTO = await this.userDatabase.getUserById(userId);
     if (!user) {
       throw new NotFoundError('User not found');
     }
@@ -199,6 +199,17 @@ export class UserBusiness {
     await this.userDatabase.updateFreeToPremium(userId);
 
     return { message: 'Updated to premium successfully' };
+  }
+
+  public getProfile = async (token:string):Promise<ProfileResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    const user:ProfileResponseDTO = await this.userDatabase.getUserById(authData.id);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+
+    return user;
   }
 
   public editProfile = async (token:string, input:EditProfileDTO):Promise<SignUpResponseDTO> => {

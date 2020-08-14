@@ -8,9 +8,9 @@ const userController = new UserController();
 
 userRouter.post('/signup', userController.signUp);
 
-userRouter.put('/create/admin', userController.createAdmin);
+userRouter.put('/admin/create', userController.createAdmin);
 
-userRouter.put('/create/band', userController.createBand);
+userRouter.put('/band/create', userController.createBand);
 
 userRouter.post('/login', userController.login);
 
@@ -20,6 +20,8 @@ userRouter.put('/approve/:id', userController.approveBand);
 
 userRouter.put('/update/:id', userController.updateFreeToPremium);
 
-userRouter.get('/token', userController.getAccessTokenByRefreshToken);
-
 userRouter.put('/edit', userController.editProfile);
+
+userRouter.get('/profile', userController.getProfile);
+
+userRouter.get('/token', userController.getAccessTokenByRefreshToken);

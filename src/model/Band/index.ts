@@ -33,25 +33,26 @@ export class Band extends User {
 }
 
 export interface GetAllBandsResponseDTO {
-  name:string,
-  nickname:string,
-  email:string,
-  image:string,
-  isApproved:boolean
+  id:string;
+  name:string;
+  nickname:string;
+  email:string;
+  image:string;
+  isApproved:boolean;
 }
 
 export interface ProfileResponseDTO {
-  id:string,
-  name:string,
-  nickname:string,
-  email:string,
-  role:USER_ROLES,
-  image:string,
-  description?:string,
-  isApproved?:boolean
+  id:string;
+  name:string;
+  nickname:string;
+  email:string;
+  role:USER_ROLES;
+  image:string;
+  description?:string;
+  isApproved?:boolean;
 }
 
 export interface MusicGenre {
-  id:string,
-  name?:string
+  id:string;
+  name?:string;
 }
