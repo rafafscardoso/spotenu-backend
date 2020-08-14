@@ -3,7 +3,7 @@ import { S3 } from 'aws-sdk';
 export class S3Service {
   private s3 = new S3({
     accessKeyId: process.env.AWS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY
+    secretAccessKey: process.env.AWS_SEC_KEY
   });
 
   public uploadFile = async (input:UploadFileInputDTO):Promise<UploadFileResponseDTO> => {
