@@ -82,7 +82,7 @@ export interface SignUpInputDTO {
 }
 
 export interface LoginInputDTO {
-  login:string,
+  username:string,
   password:string,
   device:string
 }

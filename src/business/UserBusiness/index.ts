@@ -105,13 +105,13 @@ export class UserBusiness {
   }
 
   public login = async (input:LoginInputDTO):Promise<TokenResponseDTO> => {
-    const { login, password, device } = input;
+    const { username, password, device } = input;
 
-    if (!login || !password || !device) {
+    if (!username || !password || !device) {
       throw new InvalidParameterError('Missing parameters');
     }
 
-    const user:User = await this.userDatabase.getUserByQuery(login);
+    const user:User = await this.userDatabase.getUserByQuery(username);
     if (!user) {
       throw new NotFoundError('User not found');
     }
