@@ -1,10 +1,8 @@
 import express from "express";
 import { AddressInfo } from "net";
 import dotenv from "dotenv";
-import fileUpload from "express-fileupload";
 import cors from "cors";
 
-import { fileRouter } from './router/fileRouter';
 import { userRouter } from "./router/userRouter";
 import { musicRouter } from './router/musicRouter';
 
@@ -14,9 +12,7 @@ export const app = express();
 
 app.use(cors({ origin: true }));
 app.use(express.json());
-app.use(fileUpload());
 
-app.use('/file', fileRouter);
 app.use('/user', userRouter);
 app.use('/music', musicRouter);
 

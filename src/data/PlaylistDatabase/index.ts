@@ -17,12 +17,11 @@ export class PlaylistDatabase extends BaseDatabase {
   public createPlaylist = async (input:PlaylistDTO):Promise<void> => {
     const id = input.id;
     const name = input.name;
-    const image = input.image;
     const is_private = input.isPrivate ? 1 : 0;
     const user_id = input.userId;
     try {
       await this.getConnection()
-        .insert({ id, name, image, is_private, user_id })
+        .insert({ id, name, is_private, user_id })
         .into(PlaylistDatabase.TABLE_NAME);
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
@@ -42,7 +41,6 @@ export class PlaylistDatabase extends BaseDatabase {
         .select(
           `${p}.id`,
           `${p}.name`,
-          `${p}.image`,
           `${u}.id as userId`,
           `${u}.name as userName`
         )
@@ -112,7 +110,6 @@ export class PlaylistDatabase extends BaseDatabase {
         .select(
           `${p}.id`,
           `${p}.name`,
-          `${p}.image`,
           `${u}.id as userId`,
           `${u}.name as userName`
         )
@@ -136,7 +133,6 @@ export class PlaylistDatabase extends BaseDatabase {
         .select(
           `${p}.id`,
           `${p}.name`,
-          `${p}.image`,
           `${u}.id as userId`,
           `${u}.name as userName`
         )
@@ -154,13 +150,9 @@ export class PlaylistDatabase extends BaseDatabase {
   public editPlaylist = async (input:EditPlaylistDTO):Promise<void> => {
     const id = input.id;
     const name = input.name;
-    const image = input.image;
     let editInput:any = {};
     if (name) {
       editInput = { ...editInput, name };
-    }
-    if (image) {
-      editInput = { ...editInput, image };
     }
     try {
       await this.getConnection()

@@ -5,8 +5,7 @@ export class User {
     protected nickname:string,
     protected email:string,
     protected password:string,
-    protected role:USER_ROLES,
-    protected image:string
+    protected role:USER_ROLES
   ) {}
 
   public getId = ():string => this.id;
@@ -20,8 +19,6 @@ export class User {
   public getPassword = ():string => this.password;
 
   public getRole = ():USER_ROLES => this.role;
-
-  public getImage = ():string => this.image;
 
   public setId = (id:string):void => {
     this.id = id;
@@ -47,12 +44,8 @@ export class User {
     this.role = role;
   }
 
-  public setImage = (image:string):void => {
-    this.image = image;
-  }
-
   public static toUserModel = (user:any):User => (
-    new User(user.id, user.name, user.nickname, user.email, user.password, user.role, user.image)
+    new User(user.id, user.name, user.nickname, user.email, user.password, user.role)
   )
 
   public static stringToUserRole = (role:string):USER_ROLES => {
@@ -72,29 +65,27 @@ export class User {
 }
 
 export interface SignUpInputDTO {
-  name:string,
-  nickname:string,
-  email:string,
-  password:string,
-  device?:string,
-  description?:string,
-  image:string
+  name:string;
+  nickname:string;
+  email:string;
+  password:string;
+  device?:string;
+  description?:string;
 }
 
 export interface LoginInputDTO {
-  username:string,
-  password:string,
-  device:string
+  username:string;
+  password:string;
+  device:string;
 }
 
 export interface SignUpResponseDTO {
-  message:string
+  message:string;
 }
 
 export interface EditProfileDTO {
   id?:string;
   name:string;
-  image:string;
 }
 
 export enum USER_ROLES {

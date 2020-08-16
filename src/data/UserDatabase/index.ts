@@ -18,10 +18,9 @@ export class UserDatabase extends BaseDatabase {
     const email = input.getEmail();
     const password = input.getPassword();
     const role = input.getRole();
-    const image = input.getImage();
     try {
       await this.getConnection()
-        .insert({ id, name, nickname, email, password, role, image })
+        .insert({ id, name, nickname, email, password, role })
         .into(UserDatabase.TABLE_NAME);
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
@@ -35,12 +34,11 @@ export class UserDatabase extends BaseDatabase {
     const email = input.getEmail();
     const password = input.getPassword();
     const role = input.getRole();
-    const image = input.getImage();
     const description = input.getDescription();
     const is_approved = input.getIsApproved() ? 1 : 0;
     try {
       await this.getConnection()
-        .insert({ id, name, nickname, email, password, role, image, description, is_approved })
+        .insert({ id, name, nickname, email, password, role, description, is_approved })
         .into(UserDatabase.TABLE_NAME);
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
@@ -50,11 +48,11 @@ export class UserDatabase extends BaseDatabase {
   public getUserByQuery = async (query:string):Promise<User|Band|undefined> => {
     try {
       const result = await this.getConnection()
-        .select('id', 'name', 'nickname', 'email', 'password', 'role', 'image', 'description', 'is_approved as isApproved')
+        .select('id', 'name', 'nickname', 'email', 'password', 'role', 'description', 'is_approved as isApproved')
         .from(UserDatabase.TABLE_NAME)
         .where({ nickname: query })
         .orWhere({ email: query });
-      if (!result.length) {
+      if (result.length) {
         return undefined;
       }
       if (User.stringToUserRole(result[0].role) === USER_ROLES.BAND) {
@@ -69,7 +67,7 @@ export class UserDatabase extends BaseDatabase {
   public getUserById = async (id:string):Promise<ProfileResponseDTO|undefined> => {
     try {
       const result = await this.getConnection()
-        .select('id', 'name', 'nickname', 'email', 'role', 'image', 'description', 'is_approved as isApproved')
+        .select('id', 'name', 'nickname', 'email', 'role', 'description', 'is_approved as isApproved')
         .from(UserDatabase.TABLE_NAME)
         .where({ id });
       if (!result.length) {
@@ -79,7 +77,7 @@ export class UserDatabase extends BaseDatabase {
         return { ...result[0], role: USER_ROLES.BAND, isApproved: result[0].isApproved ? true : false };
       }
       const { name, nickname, email, role, image } = result[0];
-      return { id, name, nickname, email, role: User.stringToUserRole(role), image };
+      return { id, name, nickname, email, role: User.stringToUserRole(role) };
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
@@ -89,7 +87,7 @@ export class UserDatabase extends BaseDatabase {
     const role = User.stringToUserRole('band');
     try {
       const result = await this.getConnection()
-        .select('id', 'name', 'nickname', 'email', 'image', 'is_approved as isApproved')
+        .select('id', 'name', 'nickname', 'email', 'is_approved as isApproved')
         .from(UserDatabase.TABLE_NAME)
         .where({ role });
       return result.map((item:any) => {
@@ -127,13 +125,9 @@ export class UserDatabase extends BaseDatabase {
   public editProfile = async (input:EditProfileDTO):Promise<void> => {
     const id = input.id;
     const name = input.name;
-    const image = input.image;
     let editInput:any = {}
     if (name) {
       editInput = { ...editInput, name };
-    }
-    if (image) {
-      editInput = { ...editInput, image };
     }
     try {
       await this.getConnection()

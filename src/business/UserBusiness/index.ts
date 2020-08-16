@@ -23,9 +23,9 @@ export class UserBusiness {
   ) {}
 
   public signUp = async (input:SignUpInputDTO):Promise<TokenResponseDTO> => {
-    const { name, nickname, email, password, device, image } = input;
+    const { name, nickname, email, password, device } = input;
 
-    if (!name || !nickname || !email || !password || !device || !image) {
+    if (!name || !nickname || !email || !password || !device) {
       throw new InvalidParameterError('Missing parameters');
     }
     if (email.indexOf('@') === -1) {
@@ -38,7 +38,7 @@ export class UserBusiness {
     const id:string = this.idGenerator.generateId();
     const hashPassword:string = await this.hashManager.hash(password);
     const role:USER_ROLES = User.stringToUserRole('free');
-    const userInput = { id, name, nickname, email, password: hashPassword, role, image };
+    const userInput = { id, name, nickname, email, password: hashPassword, role };
 
     await this.userDatabase.createUser(User.toUserModel(userInput));
 
@@ -58,9 +58,9 @@ export class UserBusiness {
       throw new UnauthorizedError('Only accessible for admin');
     }
 
-    const { name, nickname, email, password, device, image } = input;
+    const { name, nickname, email, password, device } = input;
 
-    if (!name || !nickname || !email || !password || !device || !image) {
+    if (!name || !nickname || !email || !password || !device) {
       throw new InvalidParameterError('Missing parameters');
     }
     if (email.indexOf('@') === -1) {
@@ -73,7 +73,7 @@ export class UserBusiness {
     const id:string = this.idGenerator.generateId();
     const hashPassword:string = await this.hashManager.hash(password);
     const role:USER_ROLES = User.stringToUserRole('admin');
-    const userInput = { id, name, nickname, email, password: hashPassword, role, image };
+    const userInput = { id, name, nickname, email, password: hashPassword, role };
 
     await this.userDatabase.createUser(User.toUserModel(userInput));
 
@@ -81,9 +81,9 @@ export class UserBusiness {
   }
 
   public createBand = async (input:SignUpInputDTO):Promise<SignUpResponseDTO> => {
-    const { name, nickname, email, password, description, device, image } = input;
+    const { name, nickname, email, password, description, device } = input;
 
-    if (!name || !nickname || !email || !password || !description || !device|| !image) {
+    if (!name || !nickname || !email || !password || !description || !device) {
       throw new InvalidParameterError('Missing parameters');
     }
     if (email.indexOf('@') === -1) {
@@ -97,7 +97,7 @@ export class UserBusiness {
     const hashPassword:string = await this.hashManager.hash(password);
     const role:USER_ROLES = User.stringToUserRole('band');
     const isApproved:boolean = false;
-    const bandInput = { id, name, nickname, email, password: hashPassword, role, image, description, isApproved };
+    const bandInput = { id, name, nickname, email, password: hashPassword, role, description, isApproved };
 
     await this.userDatabase.createBand(Band.toBandModel(bandInput));
 

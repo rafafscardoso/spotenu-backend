@@ -5,7 +5,6 @@ export class Album {
   constructor (
     private id:string,
     private name:string,
-    private image:string,
     private creatorBandId:string,
     private creatorBandName:string,
     private musicGenres:MusicGenre[],
@@ -15,8 +14,6 @@ export class Album {
   public getId = ():string => this.id;
 
   public getName = ():string => this.name;
-
-  public getImage = ():string => this.image;
 
   public getCreatorBandId = ():string => this.creatorBandId;
 
@@ -32,10 +29,6 @@ export class Album {
 
   public setName = (name:string):void => {
     this.name = name;
-  }
-
-  public setImage = (image:string):void => {
-    this.image = image;
   }
 
   public setCreatorBandId = (creatorBandId:string):void => {
@@ -55,20 +48,18 @@ export class Album {
   }
 
   public static toAlbumModel = (album:any):Album => (
-    new Album(album.id, album.name, album.image, album.creatorBandId, album.creatorBandName, album.musicGenres, album.songs)
+    new Album(album.id, album.name, album.creatorBandId, album.creatorBandName, album.musicGenres, album.songs)
   )
 }
 
 export interface AlbumDTO {
   id:string;
   name:string;
-  image:string;
   creatorBandId:string;
 }
 
 export interface AlbumInputDTO {
   name:string;
-  image:string;
   musicGenres:MusicGenre[];
 }
 
@@ -80,7 +71,6 @@ export interface AlbumGenreDTO {
 export interface AlbumResponseDTO {
   id:string;
   name:string; 
-  image:string;
   creatorBandId:string;
   creatorBandName:string;
 }

@@ -32,10 +32,10 @@ export class AlbumBusiness {
       throw new UnauthorizedError('Only accessible for band');
     }
 
-    const { name, image, musicGenres } = input;
+    const { name, musicGenres } = input;
     const creatorBandId = authData.id;
 
-    if (!name || !image || !creatorBandId || !musicGenres.length) {
+    if (!name || !creatorBandId || !musicGenres.length) {
       throw new InvalidParameterError('Missing parameters');
     }
 
@@ -48,7 +48,7 @@ export class AlbumBusiness {
     }
 
     const id = this.idGenerator.generateId();
-    const albumInput:AlbumDTO = { id, name, image, creatorBandId };
+    const albumInput:AlbumDTO = { id, name, creatorBandId };
 
     await this.albumDatabase.createAlbum(albumInput);
 

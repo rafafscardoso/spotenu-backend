@@ -165,9 +165,9 @@ export class PlaylistController {
 
       const id = req.params.id as string;
 
-      const { name, image } = req.body;
+      const { name } = req.body;
 
-      const input:EditPlaylistDTO = { id, name, image };
+      const input:EditPlaylistDTO = { id, name };
 
       const message = await PlaylistController.playlistBusiness.editPlaylist(token,input);
 

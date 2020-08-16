@@ -8,11 +8,10 @@ export class Band extends User {
     protected email:string,
     protected password:string,
     protected role:USER_ROLES,
-    protected image:string,
     protected description:string,
     protected isApproved:boolean = false
   ) {
-    super(id, name, nickname, email, password, role, image)
+    super(id, name, nickname, email, password, role)
   }
 
   public getDescription = ():string => this.description;
@@ -28,7 +27,7 @@ export class Band extends User {
   }
 
   public static toBandModel = (band:any):Band => (
-    new Band(band.id, band.name, band.nickname, band.email, band.password, band.role, band.image, band.description, band.isApproved)
+    new Band(band.id, band.name, band.nickname, band.email, band.password, band.role, band.description, band.isApproved)
   )
 }
 
@@ -37,7 +36,6 @@ export interface GetAllBandsResponseDTO {
   name:string;
   nickname:string;
   email:string;
-  image:string;
   isApproved:boolean;
 }
 
@@ -47,7 +45,6 @@ export interface ProfileResponseDTO {
   nickname:string;
   email:string;
   role:USER_ROLES;
-  image:string;
   description?:string;
   isApproved?:boolean;
 }

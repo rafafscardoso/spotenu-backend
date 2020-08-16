@@ -38,16 +38,16 @@ export class PlaylistBusiness {
       throw new UnauthorizedError('Only accessible for premium user');
     }
 
-    const { name, image } = input;
+    const { name } = input;
 
-    if (!name || !image) {
+    if (!name) {
       throw new InvalidParameterError('Missing parameters');
     }
 
     const id = this.idGenerator.generateId();
     const isPrivate = true;
     const userId = authData.id;
-    const playlistInput:PlaylistDTO = { id, name, image, isPrivate, userId };
+    const playlistInput:PlaylistDTO = { id, name, isPrivate, userId };
 
     await this.playlistDatabase.createPlaylist(playlistInput);
 

@@ -15,11 +15,10 @@ export class AlbumDatabase extends BaseDatabase {
   public createAlbum = async (input:AlbumDTO):Promise<void> => {
     const id = input.id;
     const name = input.name;
-    const image = input.image;
     const band_id = input.creatorBandId;
     try {
       await this.getConnection()
-        .insert({ id, name, image, band_id })
+        .insert({ id, name, band_id })
         .into(AlbumDatabase.TABLE_NAME);
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
@@ -29,7 +28,7 @@ export class AlbumDatabase extends BaseDatabase {
   public checkAlbumById = async (id:string):Promise<boolean> => {
     try {
       const result = await this.getConnection()
-        .select('id', 'name', 'image', 'band_id as creatorBandId')
+        .select('id', 'name', 'band_id as creatorBandId')
         .from(AlbumDatabase.TABLE_NAME)
         .where({ id });
       if (result.length) {
@@ -46,7 +45,7 @@ export class AlbumDatabase extends BaseDatabase {
     const band_id = input.creatorBandId;
     try {
       const result = await this.getConnection()
-        .select('id', 'name', 'image', 'band_id as creatorBandId')
+        .select('id', 'name', 'band_id as creatorBandId')
         .from(AlbumDatabase.TABLE_NAME)
         .where({ id, band_id });
       if (result.length) {
@@ -66,7 +65,6 @@ export class AlbumDatabase extends BaseDatabase {
         .select(
           `${a}.id`,
           `${a}.name`,
-          `${a}.image`,
           `${u}.id as creatorBandId`,
           `${u}.name as creatorBandName`
         )
@@ -90,7 +88,6 @@ export class AlbumDatabase extends BaseDatabase {
         .select(
           `${a}.id`,
           `${a}.name`,
-          `${a}.image`,
           `${u}.id as creatorBandId`,
           `${u}.name as creatorBandName`
         )
