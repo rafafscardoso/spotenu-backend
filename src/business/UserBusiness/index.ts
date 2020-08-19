@@ -1,13 +1,11 @@
 import { UserDatabase } from "../../data/UserDatabase";
-import { RefreshTokenDatabase } from "../../data/RefreshTokenDatabase";
 
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
-import { User, SignUpInputDTO, LoginInputDTO, SignUpResponseDTO, USER_ROLES, EditProfileDTO } from '../../model/User';
+import { User, SignUpInputDTO, LoginInputDTO, MessageResponseDTO, USER_ROLES, EditProfileDTO, TokenResponseDTO } from '../../model/User';
 import { Band, GetAllBandsResponseDTO, ProfileResponseDTO } from "../../model/Band";
-import { RefreshToken, TokenResponseDTO, RefreshTokenInputDTO } from "../../model/RefreshToken";
 
 import { InvalidParameterError } from "../../error/InvalidParameterError";
 import { UnauthorizedError } from "../../error/UnauthorizedError";
@@ -16,16 +14,15 @@ import { NotFoundError } from "../../error/NotFoundError";
 export class UserBusiness {
   constructor (
     private userDatabase:UserDatabase,
-    private refreshTokenDatabase:RefreshTokenDatabase,
     private idGenerator:IdGenerator,
     private authenticator:Authenticator,
     private hashManager:HashManager
   ) {}
 
   public signUp = async (input:SignUpInputDTO):Promise<TokenResponseDTO> => {
-    const { name, nickname, email, password, device } = input;
+    const { name, nickname, email, password } = input;
 
-    if (!name || !nickname || !email || !password || !device) {
+    if (!name || !nickname || !email || !password) {
       throw new InvalidParameterError('Missing parameters');
     }
     if (email.indexOf('@') === -1) {
@@ -42,25 +39,21 @@ export class UserBusiness {
 
     await this.userDatabase.createUser(User.toUserModel(userInput));
 
-    const accessToken = this.authenticator.generateToken({ id, role }, process.env.ACCESS_TOKEN_EXPIRES_IN);
-    const refreshToken = this.authenticator.generateToken({ id, device }, process.env.REFRESH_TOKEN_EXPIRES_IN);
-    const refreshTokenInput = { token: refreshToken, device, isActive: true, userId: id };
+    const token = this.authenticator.generateToken({ id, role }, process.env.ACCESS_TOKEN_EXPIRES_IN);
 
-    await this.refreshTokenDatabase.createRefreshToken(RefreshToken.toRefreshTokenModel(refreshTokenInput));
-
-    return { accessToken, refreshToken };
+    return { token };
   }
 
-  public createAdmin = async (token:string, input:SignUpInputDTO):Promise<SignUpResponseDTO> => {
+  public createAdmin = async (token:string, input:SignUpInputDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
       throw new UnauthorizedError('Only accessible for admin');
     }
 
-    const { name, nickname, email, password, device } = input;
+    const { name, nickname, email, password } = input;
 
-    if (!name || !nickname || !email || !password || !device) {
+    if (!name || !nickname || !email || !password) {
       throw new InvalidParameterError('Missing parameters');
     }
     if (email.indexOf('@') === -1) {
@@ -80,10 +73,10 @@ export class UserBusiness {
     return { message: 'Admin created successfully' };
   }
 
-  public createBand = async (input:SignUpInputDTO):Promise<SignUpResponseDTO> => {
-    const { name, nickname, email, password, description, device } = input;
+  public createBand = async (input:SignUpInputDTO):Promise<MessageResponseDTO> => {
+    const { name, nickname, email, password, description } = input;
 
-    if (!name || !nickname || !email || !password || !description || !device) {
+    if (!name || !nickname || !email || !password || !description) {
       throw new InvalidParameterError('Missing parameters');
     }
     if (email.indexOf('@') === -1) {
@@ -105,9 +98,9 @@ export class UserBusiness {
   }
 
   public login = async (input:LoginInputDTO):Promise<TokenResponseDTO> => {
-    const { username, password, device } = input;
+    const { username, password } = input;
 
-    if (!username || !password || !device) {
+    if (!username || !password) {
       throw new InvalidParameterError('Missing parameters');
     }
 
@@ -130,19 +123,9 @@ export class UserBusiness {
     const id = user.getId();
     const role = user.getRole();
 
-    const accessToken = this.authenticator.generateToken({ id, role }, process.env.ACCESS_TOKEN_EXPIRES_IN);
-    const refreshToken = this.authenticator.generateToken({ id, device }, process.env.REFRESH_TOKEN_EXPIRES_IN);
+    const token = this.authenticator.generateToken({ id, role }, process.env.ACCESS_TOKEN_EXPIRES_IN);
 
-    const refreshTokenFromDb = await this.refreshTokenDatabase.getRefreshTokenByIdAndDevice(id, device);
-    if (refreshTokenFromDb) {
-      await this.refreshTokenDatabase.deleteRefreshTokenByToken(refreshTokenFromDb.getToken());
-    }
-
-    const refreshTokenInput = { token: refreshToken, device, isActive: true, userId: id };
-
-    await this.refreshTokenDatabase.createRefreshToken(RefreshToken.toRefreshTokenModel(refreshTokenInput));
-
-    return { accessToken, refreshToken };
+    return { token };
   }
 
   public getAllBands = async (token:string):Promise<GetAllBandsResponseDTO[]> => {
@@ -157,7 +140,7 @@ export class UserBusiness {
     return bands;
   }
 
-  public approveBand = async (token:string, bandId:string):Promise<SignUpResponseDTO> => {
+  public approveBand = async (token:string, bandId:string):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
@@ -180,7 +163,7 @@ export class UserBusiness {
     return { message: 'Band approved successfully' };
   }
 
-  public updateFreeToPremium = async (token:string, userId:string):Promise<SignUpResponseDTO> => {
+  public updateFreeToPremium = async (token:string, userId:string):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
@@ -212,7 +195,7 @@ export class UserBusiness {
     return user;
   }
 
-  public editProfile = async (token:string, input:EditProfileDTO):Promise<SignUpResponseDTO> => {
+  public editProfile = async (token:string, input:EditProfileDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     const id = authData.id;
@@ -222,29 +205,5 @@ export class UserBusiness {
     await this.userDatabase.editProfile(editInput);
 
     return { message: 'Profile edited successfully' };
-  }
-
-  public getAccessTokenByRefreshToken = async (input:RefreshTokenInputDTO):Promise<TokenResponseDTO> => {
-    const { refreshToken, device } = input;
-
-    if (!refreshToken || !device) {
-      throw new InvalidParameterError('Missing parameters');
-    }
-
-    const refreshTokenData = this.authenticator.getData(refreshToken);
-    if (refreshTokenData.device !== device) { 
-      throw new InvalidParameterError('Refresh token has no device');
-    }
-
-    const user = await this.userDatabase.getUserById(refreshTokenData.id);
-    if (!user) {
-      throw new NotFoundError('User not found');
-    }
-    const id = user.id;
-    const role = user.role;
-    
-    const accessToken = this.authenticator.generateToken({ id, role }, process.env.ACCESS_TOKEN_EXPIRES_IN);
-
-    return { accessToken };
   }
 }

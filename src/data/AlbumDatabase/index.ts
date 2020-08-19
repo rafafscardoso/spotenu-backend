@@ -77,6 +77,19 @@ export class AlbumDatabase extends BaseDatabase {
     }
   }
 
+  public getAlbumsByBandId = async (bandId:string):Promise<AlbumDTO[]> => {
+    const band_id = bandId;
+    try {
+      const result = await this.getConnection()
+        .select('id', 'name', 'band_id as creatorBandId')
+        .from(AlbumDatabase.TABLE_NAME)
+        .where({ band_id });
+      return result;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
   public getAlbumsByQuery = async (input:SongQueryDTO):Promise<AlbumResponseDTO[]> => {
     const query = input.query;
     const limit = input.limit;

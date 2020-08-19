@@ -25,6 +25,8 @@ musicRouter.put('/song/create', songController.createSong);
 
 musicRouter.get('/album/query', albumController.getAlbumsByQuery);
 
+musicRouter.get('/album/band/all', albumController.getAlbumsByBandId);
+
 musicRouter.get('/album/:id', albumController.getAlbumById);
 
 musicRouter.get('/song/query', songController.getSongsByQuery);

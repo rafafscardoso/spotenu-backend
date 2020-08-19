@@ -23,5 +23,3 @@ userRouter.put('/update/:id', userController.updateFreeToPremium);
 userRouter.put('/edit', userController.editProfile);
 
 userRouter.get('/profile', userController.getProfile);
-
-userRouter.get('/token', userController.getAccessTokenByRefreshToken);

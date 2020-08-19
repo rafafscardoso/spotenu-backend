@@ -4,20 +4,17 @@ import { UserBusiness } from "../../business/UserBusiness";
 
 import { BaseDatabase } from '../../data/BaseDatabase';
 import { UserDatabase } from "../../data/UserDatabase";
-import { RefreshTokenDatabase } from "../../data/RefreshTokenDatabase";
 
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
-import { SignUpInputDTO, SignUpResponseDTO, LoginInputDTO, EditProfileDTO } from '../../model/User';
+import { SignUpInputDTO, MessageResponseDTO, LoginInputDTO, EditProfileDTO, TokenResponseDTO } from '../../model/User';
 import { GetAllBandsResponseDTO, ProfileResponseDTO } from '../../model/Band';
-import { TokenResponseDTO, RefreshTokenInputDTO } from '../../model/RefreshToken';
 
 export class UserController {
   private static userBusiness = new UserBusiness(
     new UserDatabase(),
-    new RefreshTokenDatabase(),
     new IdGenerator(),
     new Authenticator(),
     new HashManager()
@@ -43,7 +40,7 @@ export class UserController {
 
       const input:SignUpInputDTO = req.body;
 
-      const message:SignUpResponseDTO = await UserController.userBusiness.createAdmin(token, input);
+      const message:MessageResponseDTO = await UserController.userBusiness.createAdmin(token, input);
 
       res.status(200).send(message);
     } catch (error) {
@@ -57,7 +54,7 @@ export class UserController {
     try {
       const input:SignUpInputDTO = req.body;
 
-      const message:SignUpResponseDTO = await UserController.userBusiness.createBand(input);
+      const message:MessageResponseDTO = await UserController.userBusiness.createBand(input);
 
       res.status(200).send(message);
     } catch (error) {
@@ -101,7 +98,7 @@ export class UserController {
 
       const bandId = req.params.id as string;
 
-      const message:SignUpResponseDTO = await UserController.userBusiness.approveBand(token, bandId);
+      const message:MessageResponseDTO = await UserController.userBusiness.approveBand(token, bandId);
 
       res.status(200).send(message);
     } catch (error) {
@@ -117,7 +114,7 @@ export class UserController {
 
       const userId = req.params.id as string;
 
-      const message:SignUpResponseDTO = await UserController.userBusiness.updateFreeToPremium(token, userId);
+      const message:MessageResponseDTO = await UserController.userBusiness.updateFreeToPremium(token, userId);
 
       res.status(200).send(message);
     } catch (error) {
@@ -150,24 +147,6 @@ export class UserController {
       const message = await UserController.userBusiness.editProfile(token, input);
 
       res.status(200).send(message);
-    } catch (error) {
-      res.status(error.statusCode || 400).send({ message: error.message });
-    }
-
-    await BaseDatabase.destroyConnection();
-  }
-
-  public getAccessTokenByRefreshToken = async (req:Request, res:Response) => {
-    try {
-      const refreshToken = req.headers.authorization!;
-
-      const { device } = req.body;
-
-      const input:RefreshTokenInputDTO = { refreshToken, device };
-
-      const token:TokenResponseDTO = await UserController.userBusiness.getAccessTokenByRefreshToken(input);
-
-      res.status(200).send(token);
     } catch (error) {
       res.status(error.statusCode || 400).send({ message: error.message });
     }

@@ -5,7 +5,7 @@ import { PlaylistSongDatabase } from "../../data/PlaylistSongDatabase";
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
-import { User, SignUpResponseDTO, USER_ROLES } from "../../model/User";
+import { User, MessageResponseDTO, USER_ROLES } from "../../model/User";
 import { SongQueryDTO } from "../../model/Song";
 import { 
   Playlist, 
@@ -31,7 +31,7 @@ export class PlaylistBusiness {
     private authenticator:Authenticator
   ) {}
 
-  public createPlaylist = async (token:string, input:PlaylistInputDTO):Promise<SignUpResponseDTO> => {
+  public createPlaylist = async (token:string, input:PlaylistInputDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -58,7 +58,7 @@ export class PlaylistBusiness {
     return { message: 'Playlist created successfully' };
   }
 
-  public addSongToPlaylist = async (token:string, input:PlaylistSongDTO):Promise<SignUpResponseDTO> => {
+  public addSongToPlaylist = async (token:string, input:PlaylistSongDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -85,7 +85,7 @@ export class PlaylistBusiness {
     return { message: 'Song added to playlist successfully' };
   }
 
-  public removeSongFromPlaylist = async (token:string, input:PlaylistSongDTO):Promise<SignUpResponseDTO> => {
+  public removeSongFromPlaylist = async (token:string, input:PlaylistSongDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -136,7 +136,7 @@ export class PlaylistBusiness {
     return playlists;
   }
 
-  public publishPlaylist = async (token:string, id:string):Promise<SignUpResponseDTO> => {
+  public publishPlaylist = async (token:string, id:string):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -168,7 +168,7 @@ export class PlaylistBusiness {
     return { message: 'Playlist published successfully' };
   }
 
-  public followPlaylist = async (token:string, id:string):Promise<SignUpResponseDTO> => {
+  public followPlaylist = async (token:string, id:string):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -244,7 +244,7 @@ export class PlaylistBusiness {
     return playlists;
   }
 
-  public editPlaylist = async (token:string, input:EditPlaylistDTO):Promise<SignUpResponseDTO> => {
+  public editPlaylist = async (token:string, input:EditPlaylistDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     const { id } = input;

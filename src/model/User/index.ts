@@ -69,7 +69,6 @@ export interface SignUpInputDTO {
   nickname:string;
   email:string;
   password:string;
-  device?:string;
   description?:string;
 }
 
@@ -79,13 +78,17 @@ export interface LoginInputDTO {
   device:string;
 }
 
-export interface SignUpResponseDTO {
+export interface MessageResponseDTO {
   message:string;
 }
 
 export interface EditProfileDTO {
   id?:string;
   name:string;
+}
+
+export interface TokenResponseDTO {
+  token:string;
 }
 
 export enum USER_ROLES {

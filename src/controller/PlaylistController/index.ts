@@ -11,7 +11,7 @@ import { IdGenerator } from '../../service/IdGenerator';
 import { Authenticator } from '../../service/Authenticator';
 
 import { Playlist, PlaylistInputDTO, PlaylistSongDTO, PlaylistResponseDTO, PlaylistByIdInputDTO, EditPlaylistDTO } from '../../model/Playlist';
-import { SignUpResponseDTO } from '../../model/User';
+import { MessageResponseDTO } from '../../model/User';
 import { SongQueryDTO } from '../../model/Song';
 
 export class PlaylistController {
@@ -29,7 +29,7 @@ export class PlaylistController {
 
       const input:PlaylistInputDTO = req.body;
 
-      const message:SignUpResponseDTO = await PlaylistController.playlistBusiness.createPlaylist(token, input);
+      const message:MessageResponseDTO = await PlaylistController.playlistBusiness.createPlaylist(token, input);
 
       res.status(200).send(message);
     } catch (error) {
@@ -45,7 +45,7 @@ export class PlaylistController {
 
       const input:PlaylistSongDTO = req.body;
 
-      const message:SignUpResponseDTO = await PlaylistController.playlistBusiness.addSongToPlaylist(token, input);
+      const message:MessageResponseDTO = await PlaylistController.playlistBusiness.addSongToPlaylist(token, input);
 
       res.status(200).send(message);
     } catch (error) {
@@ -61,7 +61,7 @@ export class PlaylistController {
 
       const input:PlaylistSongDTO = req.body;
 
-      const message:SignUpResponseDTO = await PlaylistController.playlistBusiness.removeSongFromPlaylist(token, input);
+      const message:MessageResponseDTO = await PlaylistController.playlistBusiness.removeSongFromPlaylist(token, input);
 
       res.status(200).send(message);
     } catch (error) {
@@ -93,7 +93,7 @@ export class PlaylistController {
 
       const id = req.params.id as string;
 
-      const message:SignUpResponseDTO = await PlaylistController.playlistBusiness.publishPlaylist(token, id);
+      const message:MessageResponseDTO = await PlaylistController.playlistBusiness.publishPlaylist(token, id);
 
       res.status(200).send(message);
     } catch (error) {
@@ -109,7 +109,7 @@ export class PlaylistController {
 
       const id = req.params.id as string;
 
-      const message:SignUpResponseDTO = await PlaylistController.playlistBusiness.followPlaylist(token, id);
+      const message:MessageResponseDTO = await PlaylistController.playlistBusiness.followPlaylist(token, id);
 
       res.status(200).send(message);
     } catch (error) {

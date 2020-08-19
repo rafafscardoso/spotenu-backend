@@ -3,7 +3,7 @@ import { MusicGenreDatabase } from "../../data/MusicGenreDatabase";
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
-import { User, USER_ROLES, SignUpResponseDTO } from "../../model/User";
+import { User, USER_ROLES, MessageResponseDTO } from "../../model/User";
 import { MusicGenre } from "../../model/Band";
 
 import { InvalidParameterError } from "../../error/InvalidParameterError";
@@ -16,7 +16,7 @@ export class MusicGenreBusiness {
     private authenticator:Authenticator
   ) {}
 
-  public createMusicGenre = async (token:string, name:string):Promise<SignUpResponseDTO> => {
+  public createMusicGenre = async (token:string, name:string):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {

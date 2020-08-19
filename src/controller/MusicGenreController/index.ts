@@ -9,7 +9,7 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from '../../service/Authenticator';
 
 import { MusicGenre } from '../../model/Band';
-import { SignUpResponseDTO } from '../../model/User';
+import { MessageResponseDTO } from '../../model/User';
 
 export class MusicGenreController {
   private static musicGenreBusiness = new MusicGenreBusiness(
@@ -24,7 +24,7 @@ export class MusicGenreController {
 
       const name = req.body.name.toUpperCase();
 
-      const message:SignUpResponseDTO = await MusicGenreController.musicGenreBusiness.createMusicGenre(token, name);
+      const message:MessageResponseDTO = await MusicGenreController.musicGenreBusiness.createMusicGenre(token, name);
 
       res.status(200).send(message);
     } catch (error) {

@@ -5,7 +5,7 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
 import { Song, SongDTO, SongInputDTO, SongQueryDTO, SongAlbumDTO } from "../../model/Song";
-import { User, SignUpResponseDTO, USER_ROLES } from "../../model/User";
+import { User, MessageResponseDTO, USER_ROLES } from "../../model/User";
 import { AlbumBandDTO } from "../../model/Album";
 
 import { UnauthorizedError } from "../../error/UnauthorizedError";
@@ -20,7 +20,7 @@ export class SongBusiness {
     private authenticator:Authenticator
   ) {}
 
-  public createSong = async (token:string, input:SongInputDTO):Promise<SignUpResponseDTO> => {
+  public createSong = async (token:string, input:SongInputDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {
@@ -103,7 +103,7 @@ export class SongBusiness {
     return song;
   }
 
-  public editSong = async (token:string, input:SongDTO):Promise<SignUpResponseDTO> => {
+  public editSong = async (token:string, input:SongDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {

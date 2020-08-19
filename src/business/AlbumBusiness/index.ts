@@ -7,7 +7,7 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
 import { Album, AlbumInputDTO, AlbumDTO, AlbumGenreDTO, AlbumResponseDTO } from "../../model/Album";
-import { User, SignUpResponseDTO, USER_ROLES } from "../../model/User";
+import { User, MessageResponseDTO, USER_ROLES } from "../../model/User";
 import { MusicGenre } from "../../model/Band";
 import { SongAlbumDTO, SongQueryDTO } from "../../model/Song";
 
@@ -25,7 +25,7 @@ export class AlbumBusiness {
     private authenticator:Authenticator
   ) {}
 
-  public createAlbum = async (token:string, input:AlbumInputDTO):Promise<SignUpResponseDTO> => {
+  public createAlbum = async (token:string, input:AlbumInputDTO):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {
@@ -62,10 +62,8 @@ export class AlbumBusiness {
   public getAlbumById = async (token:string, albumId:string):Promise<Album> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
-    const userRole = User.stringToUserRole(authData.role);
-
-    if (userRole !== USER_ROLES.FREE && userRole !== USER_ROLES.PREMIUM) {
-      throw new UnauthorizedError('Only accessible for listener, free or premium');
+    if (User.stringToUserRole(authData.role) === USER_ROLES.ADMIN) {
+      throw new UnauthorizedError('Only accessible for listener or band');
     }
 
     const checkAlbumExist = await this.albumDatabase.checkAlbumById(albumId);
@@ -85,6 +83,18 @@ export class AlbumBusiness {
     const album = Album.toAlbumModel(albumInput);
 
     return album;
+  }
+
+  public getAlbumsByBandId = async (token:string):Promise<AlbumDTO[]> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {
+      throw new UnauthorizedError('Only accessible for band');
+    }
+
+    const albums:AlbumDTO[] = await this.albumDatabase.getAlbumsByBandId(authData.id);
+
+    return albums;
   }
 
   public getAlbumsByQuery = async (token:string, input:SongQueryDTO):Promise<AlbumResponseDTO[]> => {

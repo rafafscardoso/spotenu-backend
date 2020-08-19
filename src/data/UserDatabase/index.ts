@@ -52,7 +52,7 @@ export class UserDatabase extends BaseDatabase {
         .from(UserDatabase.TABLE_NAME)
         .where({ nickname: query })
         .orWhere({ email: query });
-      if (result.length) {
+      if (!result.length) {
         return undefined;
       }
       if (User.stringToUserRole(result[0].role) === USER_ROLES.BAND) {
@@ -76,7 +76,7 @@ export class UserDatabase extends BaseDatabase {
       if (User.stringToUserRole(result[0].role) === USER_ROLES.BAND) {
         return { ...result[0], role: USER_ROLES.BAND, isApproved: result[0].isApproved ? true : false };
       }
-      const { name, nickname, email, role, image } = result[0];
+      const { name, nickname, email, role } = result[0];
       return { id, name, nickname, email, role: User.stringToUserRole(role) };
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);

@@ -10,7 +10,7 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
 
 import { Song, SongInputDTO, SongAlbumDTO, SongQueryDTO, SongDTO } from '../../model/Song';
-import { SignUpResponseDTO } from '../../model/User';
+import { MessageResponseDTO } from '../../model/User';
 
 export class SongController {
   private static songBusiness = new SongBusiness(
@@ -26,7 +26,7 @@ export class SongController {
 
       const input:SongInputDTO = req.body;
 
-      const message:SignUpResponseDTO = await SongController.songBusiness.createSong(token, input);
+      const message:MessageResponseDTO = await SongController.songBusiness.createSong(token, input);
 
       res.status(200).send(message);
     } catch (error) {
