@@ -64,7 +64,7 @@ export class SongDatabase extends BaseDatabase {
       const result = await this.getConnection()
         .select('id', 'name')
         .from(SongDatabase.TABLE_NAME)
-        .where({ name: query })
+        .where('name', 'LIKE', `%${query}%`)
         .limit(limit)
         .offset(offset)
       return result;

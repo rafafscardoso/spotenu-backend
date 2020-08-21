@@ -138,7 +138,7 @@ export class PlaylistDatabase extends BaseDatabase {
         )
         .from(p)
         .join(u, `${p}.user_id`, `${u}.id`)
-        .where(`${p}.name`, query)
+        .where(`${p}.name`, 'LIKE', `${query}`)
         .limit(limit)
         .offset(offset);
       return result;

@@ -105,8 +105,8 @@ export class AlbumDatabase extends BaseDatabase {
           `${u}.name as creatorBandName`
         )
         .from(a)
-        .join(u, `${u}.id`, `${a}.creatorBandId`)
-        .where(`${a}.name`, query)
+        .join(u, `${u}.id`, `${a}.band_id`)
+        .where(`${a}.name`, 'LIKE', `%${query}%`)
         .limit(limit)
         .offset(offset);
       return result;
