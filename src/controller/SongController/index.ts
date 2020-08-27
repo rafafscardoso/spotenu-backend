@@ -28,12 +28,12 @@ export class SongController {
 
       const message:MessageResponseDTO = await SongController.songBusiness.createSong(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getSongsByQuery = async (req:Request, res:Response) => {
@@ -48,12 +48,12 @@ export class SongController {
 
       const songs:SongAlbumDTO[] = await SongController.songBusiness.getSongsByQuery(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send({ songs });
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getSongById = async (req:Request, res:Response) => {
@@ -64,12 +64,12 @@ export class SongController {
 
       const song:Song = await SongController.songBusiness.getSongById(token, songId);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(song);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public editSong = async (req:Request, res:Response) => {
@@ -84,11 +84,11 @@ export class SongController {
 
       const message = await SongController.songBusiness.editSong(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 }

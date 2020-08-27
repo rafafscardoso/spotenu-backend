@@ -18,8 +18,10 @@ userRouter.get('/band/all', userController.getAllBands);
 
 userRouter.put('/approve/:id', userController.approveBand);
 
-userRouter.put('/update/:id', userController.updateFreeToPremium);
+userRouter.put('/upgrade/:id', userController.upgradeFreeToPremium);
 
 userRouter.put('/edit', userController.editProfile);
 
 userRouter.get('/profile', userController.getProfile);
+
+userRouter.get('/listeners/all', userController.getAllListeners);

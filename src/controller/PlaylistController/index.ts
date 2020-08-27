@@ -31,12 +31,12 @@ export class PlaylistController {
 
       const message:MessageResponseDTO = await PlaylistController.playlistBusiness.createPlaylist(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public addSongToPlaylist = async (req:Request, res:Response) => {
@@ -47,28 +47,32 @@ export class PlaylistController {
 
       const message:MessageResponseDTO = await PlaylistController.playlistBusiness.addSongToPlaylist(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public removeSongFromPlaylist = async (req:Request, res:Response) => {
     try {
       const token = req.headers.authorization!;
 
-      const input:PlaylistSongDTO = req.body;
+      const id = req.params.id as string;
+
+      const songId = req.params.songId as string;
+
+      const input:PlaylistSongDTO = { id, songId };
 
       const message:MessageResponseDTO = await PlaylistController.playlistBusiness.removeSongFromPlaylist(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getAllPlaylistsByUserId = async (req:Request, res:Response) => {
@@ -79,12 +83,12 @@ export class PlaylistController {
 
       const playlists:PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getAllPlaylistsByUserId(token, page);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send({ playlists });
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public publishPlaylist = async (req:Request, res:Response) => {
@@ -95,12 +99,12 @@ export class PlaylistController {
 
       const message:MessageResponseDTO = await PlaylistController.playlistBusiness.publishPlaylist(token, id);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public followPlaylist = async (req:Request, res:Response) => {
@@ -111,12 +115,12 @@ export class PlaylistController {
 
       const message:MessageResponseDTO = await PlaylistController.playlistBusiness.followPlaylist(token, id);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getPlaylistById = async (req:Request, res:Response) => {
@@ -131,12 +135,12 @@ export class PlaylistController {
 
       const playlist:Playlist = await PlaylistController.playlistBusiness.getPlaylistById(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(playlist);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getPlaylistsByQuery = async (req:Request, res:Response) => {
@@ -151,12 +155,12 @@ export class PlaylistController {
 
       const playlists:PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getPlaylistsByQuery(token,input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send({ playlists });
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public editPlaylist = async (req:Request, res:Response) => {
@@ -171,11 +175,11 @@ export class PlaylistController {
 
       const message = await PlaylistController.playlistBusiness.editPlaylist(token,input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 }

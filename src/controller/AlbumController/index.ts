@@ -33,12 +33,12 @@ export class AlbumController {
 
       const message:MessageResponseDTO = await AlbumController.albumBusiness.createAlbum(token, input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getAlbumById = async (req:Request, res:Response) => {
@@ -49,12 +49,12 @@ export class AlbumController {
 
       const album:Album = await AlbumController.albumBusiness.getAlbumById(token, albumId);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(album);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getAlbumsByBandId = async (req:Request, res:Response) => {
@@ -63,12 +63,12 @@ export class AlbumController {
 
       const albums:AlbumDTO[] = await AlbumController.albumBusiness.getAlbumsByBandId(token);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(albums);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getAlbumsByQuery = async (req:Request, res:Response) => {
@@ -83,11 +83,11 @@ export class AlbumController {
 
       const albums:AlbumResponseDTO[] = await AlbumController.albumBusiness.getAlbumsByQuery(token,input);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send({ albums });
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 }

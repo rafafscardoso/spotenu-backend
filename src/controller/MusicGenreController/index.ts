@@ -26,12 +26,12 @@ export class MusicGenreController {
 
       const message:MessageResponseDTO = await MusicGenreController.musicGenreBusiness.createMusicGenre(token, name);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send(message);
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 
   public getAllMusicGenres = async (req:Request, res:Response) => {
@@ -40,11 +40,11 @@ export class MusicGenreController {
 
       const musicGenres:MusicGenre[] = await MusicGenreController.musicGenreBusiness.getAllMusicGenres(token);
 
+      await BaseDatabase.destroyConnection();
       res.status(200).send({ musicGenres });
     } catch (error) {
+      await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
     }
-
-    await BaseDatabase.destroyConnection();
   }
 }

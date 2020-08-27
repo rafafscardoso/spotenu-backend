@@ -4,7 +4,7 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
-import { User, SignUpInputDTO, LoginInputDTO, MessageResponseDTO, USER_ROLES, EditProfileDTO, TokenResponseDTO } from '../../model/User';
+import { User, SignUpInputDTO, LoginInputDTO, MessageResponseDTO, USER_ROLES, EditProfileDTO, TokenResponseDTO, GetAllListenersResponseDTO } from '../../model/User';
 import { Band, GetAllBandsResponseDTO, ProfileResponseDTO } from "../../model/Band";
 
 import { InvalidParameterError } from "../../error/InvalidParameterError";
@@ -163,7 +163,7 @@ export class UserBusiness {
     return { message: 'Band approved successfully' };
   }
 
-  public updateFreeToPremium = async (token:string, userId:string):Promise<MessageResponseDTO> => {
+  public upgradeFreeToPremium = async (token:string, userId:string):Promise<MessageResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
@@ -179,7 +179,7 @@ export class UserBusiness {
       throw new InvalidParameterError('User has already been premium');
     }
 
-    await this.userDatabase.updateFreeToPremium(userId);
+    await this.userDatabase.upgradeFreeToPremium(userId);
 
     return { message: 'Updated to premium successfully' };
   }
@@ -205,5 +205,17 @@ export class UserBusiness {
     await this.userDatabase.editProfile(editInput);
 
     return { message: 'Profile edited successfully' };
+  }
+
+  public getAllListeners = async (token:string):Promise<GetAllListenersResponseDTO[]> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
+      throw new UnauthorizedError('Only accessible for admin');
+    }
+
+    const listeners:GetAllListenersResponseDTO[] = await this.userDatabase.getAllListeners();
+
+    return listeners;
   }
 }

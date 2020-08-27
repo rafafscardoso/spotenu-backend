@@ -1,6 +1,6 @@
 import { BaseDatabase } from "../BaseDatabase";
 
-import { User, USER_ROLES, EditProfileDTO } from "../../model/User";
+import { User, USER_ROLES, EditProfileDTO, GetAllListenersResponseDTO } from "../../model/User";
 import { Band, GetAllBandsResponseDTO, ProfileResponseDTO } from "../../model/Band";
 
 import { InternalServerError } from "../../error/InternalServerError";
@@ -110,7 +110,7 @@ export class UserDatabase extends BaseDatabase {
     }
   }
 
-  public updateFreeToPremium = async (id:string):Promise<void> => {
+  public upgradeFreeToPremium = async (id:string):Promise<void> => {
     const role = User.stringToUserRole('premium');
     try {
       await this.getConnection()
@@ -134,6 +134,19 @@ export class UserDatabase extends BaseDatabase {
         .update(editInput)
         .from(UserDatabase.TABLE_NAME)
         .where({ id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getAllListeners = async ():Promise<GetAllListenersResponseDTO[]> => {
+    try {
+      const result = await this.getConnection()
+        .select('id', 'name', 'nickname', 'email', 'role')
+        .from(UserDatabase.TABLE_NAME)
+        .where({ role: User.stringToUserRole('free') })
+        .orWhere({ role: User.stringToUserRole('premium') });
+      return result;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
