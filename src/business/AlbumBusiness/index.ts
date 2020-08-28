@@ -85,14 +85,14 @@ export class AlbumBusiness {
     return album;
   }
 
-  public getAlbumsByBandId = async (token:string):Promise<AlbumDTO[]> => {
+  public getAlbumsByBandId = async (token:string):Promise<AlbumResponseDTO[]> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {
       throw new UnauthorizedError('Only accessible for band');
     }
 
-    const albums:AlbumDTO[] = await this.albumDatabase.getAlbumsByBandId(authData.id);
+    const albums:AlbumResponseDTO[] = await this.albumDatabase.getAlbumsByBandId(authData.id);
 
     return albums;
   }

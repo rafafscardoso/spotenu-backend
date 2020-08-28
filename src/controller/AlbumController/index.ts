@@ -61,10 +61,10 @@ export class AlbumController {
     try {
       const token = req.headers.authorization!;
 
-      const albums:AlbumDTO[] = await AlbumController.albumBusiness.getAlbumsByBandId(token);
+      const albums:AlbumResponseDTO[] = await AlbumController.albumBusiness.getAlbumsByBandId(token);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send(albums);
+      res.status(200).send({ albums });
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });

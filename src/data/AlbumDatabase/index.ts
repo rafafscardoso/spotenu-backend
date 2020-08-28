@@ -77,13 +77,20 @@ export class AlbumDatabase extends BaseDatabase {
     }
   }
 
-  public getAlbumsByBandId = async (bandId:string):Promise<AlbumDTO[]> => {
-    const band_id = bandId;
+  public getAlbumsByBandId = async (bandId:string):Promise<AlbumResponseDTO[]> => {
+    const a = AlbumDatabase.TABLE_NAME;
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
-        .select('id', 'name', 'band_id as creatorBandId')
-        .from(AlbumDatabase.TABLE_NAME)
-        .where({ band_id });
+        .select(
+          `${a}.id`,
+          `${a}.name`,
+          `${u}.id as creatorBandId`,
+          `${u}.name as creatorBandName`
+        )
+        .from(a)
+        .join(u, `${a}.band_id`, `${u}.id`)
+        .where(`${u}.id`, bandId);
       return result;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
