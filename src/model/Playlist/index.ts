@@ -83,7 +83,7 @@ export interface PlaylistResponseDTO {
 
 export interface GetPlaylistResponseDTO {
   playlists:PlaylistResponseDTO[];
-  quantity:number;
+  quantity?:number;
 }
 
 export interface GetPlaylistInputDTO {

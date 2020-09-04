@@ -53,6 +53,7 @@ export interface SongDTO {
   id:string;
   name:string;
   albumId:string;
+  albumTrack?:number;
 }
 
 export interface SongInputDTO {

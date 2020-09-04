@@ -42,13 +42,7 @@ export class MusicGenreBusiness {
   }
 
   public getAllMusicGenres = async (token:string):Promise<MusicGenre[]> => {
-    const authData:AuthenticationData = this.authenticator.getData(token);
-
-    const userRole = User.stringToUserRole(authData.role);
-
-    if (userRole !== USER_ROLES.ADMIN && userRole !== USER_ROLES.BAND) {
-      throw new UnauthorizedError('Only accessible for admin or band');
-    }
+    this.authenticator.getData(token);
 
     const musicGenres:MusicGenre[] = await this.musicGenreDataBase.getAllMusicGenres();
 

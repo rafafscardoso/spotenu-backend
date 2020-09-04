@@ -117,7 +117,7 @@ export class PlaylistBusiness {
     return { message: 'Song removed from playlist successfully' };
   }
 
-  public getAllPlaylistsByUserId = async (token:string, page:number):Promise<GetPlaylistResponseDTO|PlaylistResponseDTO[]> => {
+  public getAllPlaylistsByUserId = async (token:string, page:number):Promise<GetPlaylistResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -129,7 +129,7 @@ export class PlaylistBusiness {
     if (!page) {
       const playlists:PlaylistResponseDTO[] = await this.playlistUserDatabase.getAllPlaylistsByUserId(userId);
 
-      return playlists;
+      return { playlists };
     }
 
     const limit = 10;
@@ -138,7 +138,7 @@ export class PlaylistBusiness {
 
     const playlists:PlaylistResponseDTO[] = await this.playlistDatabase.getAllPlaylistsByUserId(getPlaylistInput);
 
-    const quantity:number = await this.playlistDatabase.getPlaylistsCountByUserId(userId);
+    const quantity:number = await this.playlistDatabase.countPlaylistsByUserId(userId);
 
     const response = { playlists, quantity };
 
@@ -173,7 +173,7 @@ export class PlaylistBusiness {
       playlists.push({ ...item, isFollowed });
     }
 
-    const quantity:number = await this.playlistDatabase.getPublicPlaylistCount();
+    const quantity:number = await this.playlistDatabase.countPublicPlaylist();
 
     const response:GetPlaylistResponseDTO = { playlists, quantity };
 

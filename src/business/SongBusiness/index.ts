@@ -54,7 +54,8 @@ export class SongBusiness {
     }
 
     const id = this.idGenerator.generateId();
-    const songInput:SongDTO = { id, name, albumId };
+    const albumTrack = 1 + await this.songDatabase.countSongsByAlbumId(albumId);
+    const songInput:SongDTO = { id, name, albumId, albumTrack };
 
     await this.songDatabase.createSong(songInput);
 
@@ -82,7 +83,7 @@ export class SongBusiness {
 
     const songs:SongAlbumDTO[] = await this.songDatabase.getSongsByQuery(queryInput);
 
-    const quantity:number = await this.songDatabase.getSongsCountByQuery(query);
+    const quantity:number = await this.songDatabase.countSongsByQuery(query);
 
     const response:SongQueryResponseDTO = { songs, quantity };
 
@@ -110,7 +111,7 @@ export class SongBusiness {
 
     const songs:SongAlbumDTO[] = await this.songDatabase.getSongsByMusicGenre(musicGenreInput);
 
-    const quantity:number = await this.songDatabase.getSongsCountByMusicGenre(musicGenreId);
+    const quantity:number = await this.songDatabase.countSongsByMusicGenre(musicGenreId);
 
     const response:SongQueryResponseDTO = { songs, quantity };
 

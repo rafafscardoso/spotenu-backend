@@ -80,7 +80,7 @@ export class PlaylistController {
 
       const page = Number(req.query.page);
 
-      const playlists:GetPlaylistResponseDTO|PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getAllPlaylistsByUserId(token, page);
+      const playlists:GetPlaylistResponseDTO = await PlaylistController.playlistBusiness.getAllPlaylistsByUserId(token, page);
 
       await BaseDatabase.destroyConnection();
       res.status(200).send(playlists);

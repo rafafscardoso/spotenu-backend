@@ -17,10 +17,24 @@ export class SongDatabase extends BaseDatabase {
     const id = input.id;
     const name = input.name;
     const album_id = input.albumId;
+    const album_track = input.albumTrack;
     try {
       await this.getConnection()
-        .insert({ id, name, album_id })
+        .insert({ id, name, album_id, album_track })
         .into(SongDatabase.TABLE_NAME);
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public countSongsByAlbumId = async (albumId:string):Promise<number> => {
+    const album_id = albumId;
+    try {
+      const result = await this.getConnection()
+        .select('id')
+        .from(SongDatabase.TABLE_NAME)
+        .where({ album_id });
+      return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
@@ -76,20 +90,9 @@ export class SongDatabase extends BaseDatabase {
       const result = await this.getConnection()
         .select('id', 'name')
         .from(SongDatabase.TABLE_NAME)
-        .where({ album_id });
+        .where({ album_id })
+        .orderBy('album_track');
       return result;
-    } catch (error) {
-      throw new InternalServerError(error.sqlMessage || error.message);
-    }
-  }
-
-  public getSongsCountByQuery = async (query:string):Promise<number> => {
-    try {
-      const result = await this.getConnection()
-        .select('id')
-        .from(SongDatabase.TABLE_NAME)
-        .where('name', 'LIKE', `%${query}%`);
-      return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
@@ -99,11 +102,19 @@ export class SongDatabase extends BaseDatabase {
     const query = input.query;
     const limit = input.limit;
     const offset = limit * (input.page - 1);
+    const s = SongDatabase.TABLE_NAME;
+    const a = AlbumDatabase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
-        .select('id', 'name')
-        .from(SongDatabase.TABLE_NAME)
-        .where('name', 'LIKE', `%${query}%`)
+        .select(`${s}.id`, `${s}.name`)
+        .from(s)
+        .join(a, `${a}.id`, `${s}.album_id`)
+        .join(u, `${u}.id`, `${a}.band_id`)
+        .where(`${s}.name`, 'LIKE', `%${query}%`)
+        .orWhere(`${u}.name`, 'LIKE', `%${query}%`)
+        .orWhere(`${a}.name`, 'LIKE', `%${query}%`)
+        .orderBy([`${u}.name`, `${s}.name`])
         .limit(limit)
         .offset(offset);
       return result;
@@ -112,19 +123,19 @@ export class SongDatabase extends BaseDatabase {
     }
   }
 
-  public getSongsCountByMusicGenre = async (musicGenreId:string):Promise<number> => {
-    const genre_id = musicGenreId;
+  public countSongsByQuery = async (query:string):Promise<number> => {
     const s = SongDatabase.TABLE_NAME;
-    const ag = AlbumGenreDatabase.getTableName();
+    const a = AlbumDatabase.getTableName();
+    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
-        .select(
-          `${s}.id`,
-          `${s}.name`
-        )
+        .select(`${s}.id`)
         .from(s)
-        .join(ag, `${ag}.album_id`, `${s}.album_id`)
-        .where(`${ag}.genre_id`, genre_id);
+        .join(a, `${a}.id`, `${s}.album_id`)
+        .join(u, `${u}.id`, `${a}.band_id`)
+        .where(`${s}.name`, 'LIKE', `%${query}%`)
+        .orWhere(`${u}.name`, 'LIKE', `%${query}%`)
+        .orWhere(`${a}.name`, 'LIKE', `%${query}%`)
       return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
@@ -146,9 +157,29 @@ export class SongDatabase extends BaseDatabase {
         .from(s)
         .join(ag, `${ag}.album_id`, `${s}.album_id`)
         .where(`${ag}.genre_id`, genre_id)
+        .orderBy(`${s}.name`)
         .limit(limit)
         .offset(offset);
       return result;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public countSongsByMusicGenre = async (musicGenreId:string):Promise<number> => {
+    const genre_id = musicGenreId;
+    const s = SongDatabase.TABLE_NAME;
+    const ag = AlbumGenreDatabase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${s}.id`,
+          `${s}.name`
+        )
+        .from(s)
+        .join(ag, `${ag}.album_id`, `${s}.album_id`)
+        .where(`${ag}.genre_id`, genre_id);
+      return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

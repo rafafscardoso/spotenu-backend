@@ -27,29 +27,6 @@ export class PlaylistDatabase extends BaseDatabase {
     }
   }
 
-  public getPlaylistsCountByUserId = async (userId:string):Promise<number> => {
-    const user_id = userId;
-    const p = PlaylistDatabase.TABLE_NAME;
-    const pu = PlaylistUserDatabase.getTableName();
-    const u = UserDatabase.getTableName();
-    try {
-      const result = await this.getConnection()
-        .select(
-          `${p}.id`,
-          `${p}.name`,
-          `${u}.id as userId`,
-          `${u}.name as userName`
-        )
-        .from(p)
-        .join(pu, `${p}.id`, `${pu}.playlist_id`)
-        .join(u, `${u}.id`, `${p}.user_id`)
-        .where(`${pu}.user_id`, user_id);
-      return result.length;
-    } catch (error) {
-      throw new InternalServerError(error.sqlMessage || error.message);
-    }
-  }
-
   public getAllPlaylistsByUserId = async (input:GetPlaylistInputDTO):Promise<PlaylistResponseDTO[]> => {
     const user_id = input.userId;
     const limit = input.limit;
@@ -77,22 +54,16 @@ export class PlaylistDatabase extends BaseDatabase {
     }
   }
 
-  public getPublicPlaylistCount = async ():Promise<number> => {
+  public countPlaylistsByUserId = async (userId:string):Promise<number> => {
+    const user_id = userId;
     const p = PlaylistDatabase.TABLE_NAME;
     const pu = PlaylistUserDatabase.getTableName();
-    const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
-        .select(
-          `${p}.id`,
-          `${p}.name`,
-          `${u}.id as userId`,
-          `${u}.name as userName`
-        )
+        .select(`${p}.id`)
         .from(p)
         .join(pu, `${p}.id`, `${pu}.playlist_id`)
-        .join(u, `${u}.id`, `${p}.user_id`)
-        .where(`${p}.is_private`, 0);
+        .where(`${pu}.user_id`, user_id);
       return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
@@ -120,6 +91,18 @@ export class PlaylistDatabase extends BaseDatabase {
         .limit(limit)
         .offset(offset);
       return result;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public countPublicPlaylist = async ():Promise<number> => {
+    try {
+      const result = await this.getConnection()
+        .select(`id`)
+        .from(PlaylistDatabase.TABLE_NAME)
+        .where(`is_private`, 0);
+      return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
