@@ -6,7 +6,6 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
 import { User, MessageResponseDTO, USER_ROLES } from "../../model/User";
-import { SongQueryDTO } from "../../model/Song";
 import { 
   Playlist, 
   PlaylistDTO, 
@@ -14,9 +13,9 @@ import {
   PlaylistSongDTO, 
   PlaylistInputDTO, 
   PlaylistResponseDTO, 
-  AllPlaylistInputDTO, 
-  PlaylistByIdInputDTO, 
-  EditPlaylistDTO 
+  GetPlaylistInputDTO, 
+  EditPlaylistDTO, 
+  GetPlaylistResponseDTO
 } from "../../model/Playlist";
 
 import { UnauthorizedError } from "../../error/UnauthorizedError";
@@ -118,7 +117,7 @@ export class PlaylistBusiness {
     return { message: 'Song removed from playlist successfully' };
   }
 
-  public getAllPlaylistsByUserId = async (token:string, page:number):Promise<PlaylistResponseDTO[]> => {
+  public getAllPlaylistsByUserId = async (token:string, page:number):Promise<GetPlaylistResponseDTO|PlaylistResponseDTO[]> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -127,13 +126,58 @@ export class PlaylistBusiness {
 
     const userId = authData.id;
 
+    if (!page) {
+      const playlists:PlaylistResponseDTO[] = await this.playlistUserDatabase.getAllPlaylistsByUserId(userId);
+
+      return playlists;
+    }
+
     const limit = 10;
 
-    const getAllPlaylistInput:AllPlaylistInputDTO = { userId, page, limit };
+    const getPlaylistInput:GetPlaylistInputDTO = { userId, page, limit };
 
-    const playlists:PlaylistResponseDTO[] = await this.playlistDatabase.getAllPlaylistsByUserId(getAllPlaylistInput);
+    const playlists:PlaylistResponseDTO[] = await this.playlistDatabase.getAllPlaylistsByUserId(getPlaylistInput);
 
-    return playlists;
+    const quantity:number = await this.playlistDatabase.getPlaylistsCountByUserId(userId);
+
+    const response = { playlists, quantity };
+
+    return response;
+  }
+
+  public getAllPublicPlaylists = async (token:string, page:number):Promise<GetPlaylistResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
+      throw new UnauthorizedError('Only accessible for premium user');
+    }
+
+    if (!page) {
+      throw new InvalidParameterError('Missing parameters');
+    }
+
+    const limit = 10;
+
+    const getPlaylistInput:GetPlaylistInputDTO = { page, limit };
+
+    const playlistsResponse:PlaylistResponseDTO[] = await this.playlistDatabase.getAllPublicPlaylists(getPlaylistInput);
+
+    const userId = authData.id;
+
+    let playlists:PlaylistResponseDTO[] = [];
+
+    for (const item of playlistsResponse) {
+      const { id } = item;
+      const playlistUserInput:PlaylistUserDTO = { id, userId };
+      const isFollowed = await this.playlistUserDatabase.checkPlaylistFollowed(playlistUserInput);
+      playlists.push({ ...item, isFollowed });
+    }
+
+    const quantity:number = await this.playlistDatabase.getPublicPlaylistCount();
+
+    const response:GetPlaylistResponseDTO = { playlists, quantity };
+
+    return response;
   }
 
   public publishPlaylist = async (token:string, id:string):Promise<MessageResponseDTO> => {
@@ -194,7 +238,7 @@ export class PlaylistBusiness {
     return { message: 'Playlist followed successfully' };
   }
 
-  public getPlaylistById = async (token:string, input:PlaylistByIdInputDTO):Promise<Playlist> => {
+  public getPlaylistById = async (token:string, input:GetPlaylistInputDTO):Promise<Playlist> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
@@ -211,7 +255,7 @@ export class PlaylistBusiness {
 
     const limit = 10;
 
-    const playlistSongInput:PlaylistByIdInputDTO = { ...input, limit };
+    const playlistSongInput:GetPlaylistInputDTO = { ...input, limit };
 
     const songs = await this.playlistSongDatabase.getSongsByPlaylistId(playlistSongInput);
 
@@ -220,28 +264,6 @@ export class PlaylistBusiness {
     const playlist = Playlist.toPlaylistModel(playlistInput);
 
     return playlist;
-  }
-
-  public getPlaylistsByQuery = async (token:string, input:SongQueryDTO):Promise<PlaylistResponseDTO[]> => {
-    const authData:AuthenticationData = this.authenticator.getData(token);
-
-    if (User.stringToUserRole(authData.role) !== USER_ROLES.PREMIUM) {
-      throw new UnauthorizedError('Only accessible for premium user');
-    }
-
-    const { query } = input;
-
-    if (!query) {
-      throw new InvalidParameterError('Missing parameters');
-    }
-
-    const limit = 10;
-
-    const queryInput:SongQueryDTO = { ...input, limit };
-
-    const playlists:PlaylistResponseDTO[] = await this.playlistDatabase.getPlaylistsByQuery(queryInput);
-
-    return playlists;
   }
 
   public editPlaylist = async (token:string, input:EditPlaylistDTO):Promise<MessageResponseDTO> => {

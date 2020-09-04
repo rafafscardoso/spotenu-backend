@@ -2,7 +2,6 @@ import { BaseDatabase } from '../BaseDatabase';
 import { UserDatabase } from '../UserDatabase';
 
 import { AlbumDTO, AlbumResponseDTO, AlbumBandDTO } from '../../model/Album';
-import { SongQueryDTO } from '../../model/Song';
 
 import { InternalServerError } from "../../error/InternalServerError";
 
@@ -91,31 +90,6 @@ export class AlbumDatabase extends BaseDatabase {
         .from(a)
         .join(u, `${a}.band_id`, `${u}.id`)
         .where(`${u}.id`, bandId);
-      return result;
-    } catch (error) {
-      throw new InternalServerError(error.sqlMessage || error.message);
-    }
-  }
-
-  public getAlbumsByQuery = async (input:SongQueryDTO):Promise<AlbumResponseDTO[]> => {
-    const query = input.query;
-    const limit = input.limit;
-    const offset = limit * (input.page - 1);
-    const a = AlbumDatabase.TABLE_NAME;
-    const u = UserDatabase.getTableName();
-    try {
-      const result = await this.getConnection()
-        .select(
-          `${a}.id`,
-          `${a}.name`,
-          `${u}.id as creatorBandId`,
-          `${u}.name as creatorBandName`
-        )
-        .from(a)
-        .join(u, `${u}.id`, `${a}.band_id`)
-        .where(`${a}.name`, 'LIKE', `%${query}%`)
-        .limit(limit)
-        .offset(offset);
       return result;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);

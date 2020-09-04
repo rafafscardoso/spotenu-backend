@@ -11,9 +11,8 @@ import { SongDatabase } from '../../data/SongDatabase';
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from '../../service/Authenticator';
 
-import { Album, AlbumInputDTO, AlbumResponseDTO, AlbumDTO } from '../../model/Album';
+import { Album, AlbumInputDTO, AlbumResponseDTO } from '../../model/Album';
 import { MessageResponseDTO } from '../../model/User';
-import { SongQueryDTO } from '../../model/Song';
 
 export class AlbumController {
   private static albumBusiness = new AlbumBusiness(
@@ -50,7 +49,7 @@ export class AlbumController {
       const album:Album = await AlbumController.albumBusiness.getAlbumById(token, albumId);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send(album);
+      res.status(200).send({ album });
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
@@ -62,26 +61,6 @@ export class AlbumController {
       const token = req.headers.authorization!;
 
       const albums:AlbumResponseDTO[] = await AlbumController.albumBusiness.getAlbumsByBandId(token);
-
-      await BaseDatabase.destroyConnection();
-      res.status(200).send({ albums });
-    } catch (error) {
-      await BaseDatabase.destroyConnection();
-      res.status(error.statusCode || 400).send({ message: error.message });
-    }
-  }
-
-  public getAlbumsByQuery = async (req:Request, res:Response) => {
-    try {
-      const token = req.headers.authorization!;
-
-      const query = req.query.query as string;
-
-      const page = Number(req.query.page);
-
-      const input:SongQueryDTO = { query, page };
-
-      const albums:AlbumResponseDTO[] = await AlbumController.albumBusiness.getAlbumsByQuery(token,input);
 
       await BaseDatabase.destroyConnection();
       res.status(200).send({ albums });

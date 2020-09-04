@@ -3,8 +3,7 @@ import { UserDatabase } from "../UserDatabase";
 import { PlaylistUserDatabase } from "../PlaylistUserDatabase";
 import { PlaylistSongDatabase } from "../PlaylistSongDatabase";
 
-import { PlaylistDTO, PlaylistResponseDTO, AllPlaylistInputDTO, PlaylistUserDTO, EditPlaylistDTO } from "../../model/Playlist";
-import { SongQueryDTO } from "../../model/Song";
+import { PlaylistDTO, PlaylistResponseDTO, GetPlaylistInputDTO, PlaylistUserDTO, EditPlaylistDTO } from "../../model/Playlist";
 
 import { InternalServerError } from "../../error/InternalServerError";
 
@@ -28,13 +27,10 @@ export class PlaylistDatabase extends BaseDatabase {
     }
   }
 
-  public getAllPlaylistsByUserId = async (input:AllPlaylistInputDTO):Promise<PlaylistResponseDTO[]> => {
-    const user_id = input.userId;
-    const limit = input.limit;
-    const offset = limit * (input.page - 1);
+  public getPlaylistsCountByUserId = async (userId:string):Promise<number> => {
+    const user_id = userId;
     const p = PlaylistDatabase.TABLE_NAME;
     const pu = PlaylistUserDatabase.getTableName();
-    const ps = PlaylistSongDatabase.getTableName();
     const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
@@ -46,9 +42,81 @@ export class PlaylistDatabase extends BaseDatabase {
         )
         .from(p)
         .join(pu, `${p}.id`, `${pu}.playlist_id`)
-        .join(ps, `${p}.id`, `${ps}.playlist_id`)
         .join(u, `${u}.id`, `${p}.user_id`)
-        .where(`${u}.id`, user_id)
+        .where(`${pu}.user_id`, user_id);
+      return result.length;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getAllPlaylistsByUserId = async (input:GetPlaylistInputDTO):Promise<PlaylistResponseDTO[]> => {
+    const user_id = input.userId;
+    const limit = input.limit;
+    const offset = limit * (input.page - 1);
+    const p = PlaylistDatabase.TABLE_NAME;
+    const pu = PlaylistUserDatabase.getTableName();
+    const u = UserDatabase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${p}.id`,
+          `${p}.name`,
+          `${u}.id as userId`,
+          `${u}.name as userName`
+        )
+        .from(p)
+        .join(pu, `${p}.id`, `${pu}.playlist_id`)
+        .join(u, `${u}.id`, `${p}.user_id`)
+        .where(`${pu}.user_id`, user_id)
+        .limit(limit)
+        .offset(offset);
+      return result;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getPublicPlaylistCount = async ():Promise<number> => {
+    const p = PlaylistDatabase.TABLE_NAME;
+    const pu = PlaylistUserDatabase.getTableName();
+    const u = UserDatabase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${p}.id`,
+          `${p}.name`,
+          `${u}.id as userId`,
+          `${u}.name as userName`
+        )
+        .from(p)
+        .join(pu, `${p}.id`, `${pu}.playlist_id`)
+        .join(u, `${u}.id`, `${p}.user_id`)
+        .where(`${p}.is_private`, 0);
+      return result.length;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getAllPublicPlaylists = async (input:GetPlaylistInputDTO):Promise<PlaylistResponseDTO[]> => {
+    const limit = input.limit;
+    const offset = limit * (input.page - 1);
+    const p = PlaylistDatabase.TABLE_NAME;
+    const pu = PlaylistUserDatabase.getTableName();
+    const u = UserDatabase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${p}.id`,
+          `${p}.name`,
+          `${u}.id as userId`,
+          `${u}.name as userName`
+        )
+        .from(p)
+        .join(pu, `${p}.id`, `${pu}.playlist_id`)
+        .join(u, `${u}.id`, `${p}.user_id`)
+        .where(`${p}.is_private`, 0)
         .limit(limit)
         .offset(offset);
       return result;
@@ -78,7 +146,7 @@ export class PlaylistDatabase extends BaseDatabase {
     const is_private = true ? 1 : 0;
     try {
       const result = await this.getConnection()
-        .select('id', 'user_id userId')
+        .select('id', 'user_id as userId')
         .from(PlaylistDatabase.TABLE_NAME)
         .where({ id, is_private });
       if (result.length) {
@@ -96,7 +164,7 @@ export class PlaylistDatabase extends BaseDatabase {
       await this.getConnection()
         .update({ is_private })
         .from(PlaylistDatabase.TABLE_NAME)
-        .where({ id })
+        .where({ id });
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
@@ -110,38 +178,14 @@ export class PlaylistDatabase extends BaseDatabase {
         .select(
           `${p}.id`,
           `${p}.name`,
+          `${p}.is_private as isPrivate`,
           `${u}.id as userId`,
           `${u}.name as userName`
         )
         .from(p)
         .join(u, `${p}.user_id`, `${u}.id`)
         .where(`${p}.id`, id);
-      return result[0];
-    } catch (error) {
-      throw new InternalServerError(error.sqlMessage || error.message);
-    }
-  }
-
-  public getPlaylistsByQuery = async (input:SongQueryDTO):Promise<PlaylistResponseDTO[]> => {
-    const query = input.query;
-    const limit = input.limit;
-    const offset = limit * (input.page - 1);
-    const p = PlaylistDatabase.TABLE_NAME;
-    const u = UserDatabase.getTableName();
-    try {
-      const result = await this.getConnection()
-        .select(
-          `${p}.id`,
-          `${p}.name`,
-          `${u}.id as userId`,
-          `${u}.name as userName`
-        )
-        .from(p)
-        .join(u, `${p}.user_id`, `${u}.id`)
-        .where(`${p}.name`, 'LIKE', `${query}`)
-        .limit(limit)
-        .offset(offset);
-      return result;
+      return { ...result[0], isPrivate: result[0].isPrivate ? true : false };
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

@@ -10,9 +10,8 @@ import { PlaylistSongDatabase } from '../../data/PlaylistSongDatabase';
 import { IdGenerator } from '../../service/IdGenerator';
 import { Authenticator } from '../../service/Authenticator';
 
-import { Playlist, PlaylistInputDTO, PlaylistSongDTO, PlaylistResponseDTO, PlaylistByIdInputDTO, EditPlaylistDTO } from '../../model/Playlist';
+import { Playlist, PlaylistInputDTO, PlaylistSongDTO, PlaylistResponseDTO, GetPlaylistInputDTO, EditPlaylistDTO, GetPlaylistResponseDTO } from '../../model/Playlist';
 import { MessageResponseDTO } from '../../model/User';
-import { SongQueryDTO } from '../../model/Song';
 
 export class PlaylistController {
   private static playlistBusiness = new PlaylistBusiness(
@@ -81,10 +80,26 @@ export class PlaylistController {
 
       const page = Number(req.query.page);
 
-      const playlists:PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getAllPlaylistsByUserId(token, page);
+      const playlists:GetPlaylistResponseDTO|PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getAllPlaylistsByUserId(token, page);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send({ playlists });
+      res.status(200).send(playlists);
+    } catch (error) {
+      await BaseDatabase.destroyConnection();
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+  }
+
+  public getAllPublicPlaylists = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const page = Number(req.query.page);
+
+      const playlists:GetPlaylistResponseDTO = await PlaylistController.playlistBusiness.getAllPublicPlaylists(token, page);
+
+      await BaseDatabase.destroyConnection();
+      res.status(200).send(playlists);
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
@@ -131,32 +146,12 @@ export class PlaylistController {
 
       const page = Number(req.query.page);
 
-      const input:PlaylistByIdInputDTO = { id, page };
+      const input:GetPlaylistInputDTO = { id, page };
 
       const playlist:Playlist = await PlaylistController.playlistBusiness.getPlaylistById(token, input);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send(playlist);
-    } catch (error) {
-      await BaseDatabase.destroyConnection();
-      res.status(error.statusCode || 400).send({ message: error.message });
-    }
-  }
-
-  public getPlaylistsByQuery = async (req:Request, res:Response) => {
-    try {
-      const token = req.headers.authorization!;
-
-      const query = req.query.query as string;
-
-      const page = Number(req.query.page);
-
-      const input:SongQueryDTO = { query, page };
-
-      const playlists:PlaylistResponseDTO[] = await PlaylistController.playlistBusiness.getPlaylistsByQuery(token,input);
-
-      await BaseDatabase.destroyConnection();
-      res.status(200).send({ playlists });
+      res.status(200).send({ playlist });
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });

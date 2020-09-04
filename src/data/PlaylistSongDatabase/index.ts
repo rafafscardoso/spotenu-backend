@@ -3,7 +3,7 @@ import { SongDatabase } from "../SongDatabase";
 import { AlbumDatabase } from "../AlbumDatabase";
 import { UserDatabase } from "../UserDatabase";
 
-import { PlaylistSongDTO, PlaylistByIdInputDTO } from "../../model/Playlist";
+import { PlaylistSongDTO, GetPlaylistInputDTO } from "../../model/Playlist";
 import { Song } from "../../model/Song";
 
 import { InternalServerError } from "../../error/InternalServerError";
@@ -56,7 +56,7 @@ export class PlaylistSongDatabase extends BaseDatabase {
     }
   }
 
-  public getSongsByPlaylistId = async (input:PlaylistByIdInputDTO):Promise<Song[]> => {
+  public getSongsByPlaylistId = async (input:GetPlaylistInputDTO):Promise<Song[]> => {
     const playlist_id = input.id;
     const limit = input.limit;
     const offset = limit * (input.page - 1);

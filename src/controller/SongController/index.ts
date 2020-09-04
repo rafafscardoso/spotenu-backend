@@ -9,7 +9,7 @@ import { AlbumDatabase } from "../../data/AlbumDatabase";
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
 
-import { Song, SongInputDTO, SongAlbumDTO, SongQueryDTO, SongDTO } from '../../model/Song';
+import { Song, SongInputDTO, SongQueryDTO, SongDTO, SongQueryResponseDTO, SongMusicGenreDTO } from '../../model/Song';
 import { MessageResponseDTO } from '../../model/User';
 
 export class SongController {
@@ -46,10 +46,30 @@ export class SongController {
 
       const input:SongQueryDTO = { query, page };
 
-      const songs:SongAlbumDTO[] = await SongController.songBusiness.getSongsByQuery(token, input);
+      const songs:SongQueryResponseDTO = await SongController.songBusiness.getSongsByQuery(token, input);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send({ songs });
+      res.status(200).send(songs);
+    } catch (error) {
+      await BaseDatabase.destroyConnection();
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+  }
+
+  public getSongsByMusicGenre = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const musicGenreId = req.params.id as string;
+
+      const page = Number(req.query.page);
+
+      const input:SongMusicGenreDTO = { musicGenreId, page };
+
+      const songs:SongQueryResponseDTO = await SongController.songBusiness.getSongsByMusicGenre(token, input);
+
+      await BaseDatabase.destroyConnection();
+      res.status(200).send(songs);
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
@@ -65,7 +85,7 @@ export class SongController {
       const song:Song = await SongController.songBusiness.getSongById(token, songId);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send(song);
+      res.status(200).send({ song });
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });

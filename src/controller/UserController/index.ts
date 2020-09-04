@@ -131,7 +131,7 @@ export class UserController {
       const user:ProfileResponseDTO = await UserController.userBusiness.getProfile(token);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send(user);
+      res.status(200).send({ user });
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });

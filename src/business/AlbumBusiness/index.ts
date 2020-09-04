@@ -9,7 +9,7 @@ import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 import { Album, AlbumInputDTO, AlbumDTO, AlbumGenreDTO, AlbumResponseDTO } from "../../model/Album";
 import { User, MessageResponseDTO, USER_ROLES } from "../../model/User";
 import { MusicGenre } from "../../model/Band";
-import { SongAlbumDTO, SongQueryDTO } from "../../model/Song";
+import { SongAlbumDTO } from "../../model/Song";
 
 import { UnauthorizedError } from "../../error/UnauthorizedError";
 import { InvalidParameterError } from "../../error/InvalidParameterError";
@@ -93,30 +93,6 @@ export class AlbumBusiness {
     }
 
     const albums:AlbumResponseDTO[] = await this.albumDatabase.getAlbumsByBandId(authData.id);
-
-    return albums;
-  }
-
-  public getAlbumsByQuery = async (token:string, input:SongQueryDTO):Promise<AlbumResponseDTO[]> => {
-    const authData:AuthenticationData = this.authenticator.getData(token);
-
-    const userRole = User.stringToUserRole(authData.role);
-
-    if (userRole !== USER_ROLES.FREE && userRole !== USER_ROLES.PREMIUM) {
-      throw new UnauthorizedError('Only accessible for listener, free or premium');
-    }
-
-    const { query } = input;
-
-    if (!query) {
-      throw new InvalidParameterError('Missing parameters');
-    }
-
-    const limit = 10;
-
-    const queryInput:SongQueryDTO = { ...input, limit };
-
-    const albums:AlbumResponseDTO[] = await this.albumDatabase.getAlbumsByQuery(queryInput);
 
     return albums;
   }

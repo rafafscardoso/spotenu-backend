@@ -4,7 +4,7 @@ import { AlbumDatabase } from "../../data/AlbumDatabase";
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
-import { Song, SongDTO, SongInputDTO, SongQueryDTO, SongAlbumDTO } from "../../model/Song";
+import { Song, SongDTO, SongInputDTO, SongQueryDTO, SongAlbumDTO, SongBandDTO, SongQueryResponseDTO, SongMusicGenreDTO } from "../../model/Song";
 import { User, MessageResponseDTO, USER_ROLES } from "../../model/User";
 import { AlbumBandDTO } from "../../model/Album";
 
@@ -61,7 +61,7 @@ export class SongBusiness {
     return { message: 'Song created successfully' };
   }
 
-  public getSongsByQuery = async (token:string, input:SongQueryDTO):Promise<SongAlbumDTO[]> => {
+  public getSongsByQuery = async (token:string, input:SongQueryDTO):Promise<SongQueryResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     const userRole = User.stringToUserRole(authData.role);
@@ -70,9 +70,9 @@ export class SongBusiness {
       throw new UnauthorizedError('Only accessible for listener, free or premium');
     }
 
-    const { query } = input;
+    const { query, page } = input;
 
-    if (!query) {
+    if (!query || !page) {
       throw new InvalidParameterError('Missing parameters');
     }
 
@@ -82,7 +82,39 @@ export class SongBusiness {
 
     const songs:SongAlbumDTO[] = await this.songDatabase.getSongsByQuery(queryInput);
 
-    return songs;
+    const quantity:number = await this.songDatabase.getSongsCountByQuery(query);
+
+    const response:SongQueryResponseDTO = { songs, quantity };
+
+    return response;
+  }
+
+  public getSongsByMusicGenre = async (token:string, input:SongMusicGenreDTO):Promise<any> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    const userRole = User.stringToUserRole(authData.role);
+
+    if (userRole !== USER_ROLES.FREE && userRole !== USER_ROLES.PREMIUM) {
+      throw new UnauthorizedError('Only accessible for listener, free or premium');
+    }
+
+    const { musicGenreId, page } = input;
+
+    if (!musicGenreId || !page) {
+      throw new InvalidParameterError('Missing parameters');
+    }
+
+    const limit = 10;
+
+    const musicGenreInput:SongMusicGenreDTO = { ...input, limit };
+
+    const songs:SongAlbumDTO[] = await this.songDatabase.getSongsByMusicGenre(musicGenreInput);
+
+    const quantity:number = await this.songDatabase.getSongsCountByMusicGenre(musicGenreId);
+
+    const response:SongQueryResponseDTO = { songs, quantity };
+
+    return response;
   }
 
   public getSongById = async (token:string, songId:string):Promise<Song> => {
@@ -90,8 +122,18 @@ export class SongBusiness {
 
     const userRole = User.stringToUserRole(authData.role);
 
-    if (userRole !== USER_ROLES.FREE && userRole !== USER_ROLES.PREMIUM) {
-      throw new UnauthorizedError('Only accessible for listener, free or premium');
+    if (userRole === USER_ROLES.ADMIN) {
+      throw new UnauthorizedError('Not accessible for admin');
+    }
+
+    if (userRole === USER_ROLES.BAND) {
+      const checkSongByBandIdInput:SongBandDTO = { id: songId, bandId: authData.id };
+  
+      const checkSongByBandId:boolean = await this.songDatabase.checkSongByBandId(checkSongByBandIdInput);
+  
+      if (!checkSongByBandId) {
+        throw new UnauthorizedError('Only accessible for the creator band')
+      }
     }
 
     const song:Song = await this.songDatabase.getSongById(songId);

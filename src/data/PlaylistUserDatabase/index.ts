@@ -1,6 +1,7 @@
 import { BaseDatabase } from "../BaseDatabase";
+import { PlaylistDatabase } from "../PlaylistDatabase";
 
-import { PlaylistUserDTO } from "../../model/Playlist";
+import { PlaylistUserDTO, PlaylistResponseDTO } from "../../model/Playlist";
 
 import { InternalServerError } from "../../error/InternalServerError";
 
@@ -34,6 +35,25 @@ export class PlaylistUserDatabase extends BaseDatabase {
         return true;
       }
       return false;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public getAllPlaylistsByUserId = async (userId:string):Promise<PlaylistResponseDTO[]> => {
+    const user_id = userId;
+    const pu = PlaylistUserDatabase.TABLE_NAME;
+    const p = PlaylistDatabase.getTableName();
+    try {
+      const result = await this.getConnection()
+        .select(
+          `${p}.id`,
+          `${p}.name`
+        )
+        .from(p)
+        .join(pu, `${p}.id`, `${pu}.playlist_id`)
+        .where(`${pu}.user_id`, user_id);
+      return result;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

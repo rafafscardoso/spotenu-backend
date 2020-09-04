@@ -75,18 +75,20 @@ export interface PlaylistSongDTO {
 export interface PlaylistResponseDTO {
   id:string;
   name:string;
-  userId:string;
-  userName:string;
+  isPrivate?:boolean;
+  userId?:string;
+  userName?:string;
+  isFollowed?:boolean;
 }
 
-export interface AllPlaylistInputDTO {
-  userId:string;
-  page:number;
-  limit?:number;
+export interface GetPlaylistResponseDTO {
+  playlists:PlaylistResponseDTO[];
+  quantity:number;
 }
 
-export interface PlaylistByIdInputDTO {
-  id:string;
+export interface GetPlaylistInputDTO {
+  id?:string;
+  userId?:string;
   page:number;
   limit?:number;
 }

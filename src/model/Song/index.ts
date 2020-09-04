@@ -50,23 +50,39 @@ export class Song {
 }
 
 export interface SongDTO {
-  id:string,
-  name:string,
-  albumId:string
+  id:string;
+  name:string;
+  albumId:string;
 }
 
 export interface SongInputDTO {
-  name:string,
-  albumId:string
+  name:string;
+  albumId:string;
+}
+
+export interface SongBandDTO {
+  id:string;
+  bandId:string;
 }
 
 export interface SongAlbumDTO {
-  id:string,
-  name:string
+  id:string;
+  name:string;
 }
 
 export interface SongQueryDTO {
-  query:string,
-  page:number,
-  limit?:number
+  query:string;
+  page:number;
+  limit?:number;
+}
+
+export interface SongMusicGenreDTO {
+  musicGenreId:string;
+  page:number;
+  limit?:number;
+}
+
+export interface SongQueryResponseDTO {
+  songs:SongAlbumDTO[];
+  quantity:number;
 }
