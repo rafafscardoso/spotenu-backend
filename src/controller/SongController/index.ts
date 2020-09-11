@@ -5,6 +5,7 @@ import { SongBusiness } from "../../business/SongBusiness";
 import { BaseDatabase } from '../../data/BaseDatabase';
 import { SongDatabase } from "../../data/SongDatabase";
 import { AlbumDatabase } from "../../data/AlbumDatabase";
+import { PlaylistSongDatabase } from '../../data/PlaylistSongDatabase';
 
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
@@ -16,6 +17,7 @@ export class SongController {
   private static songBusiness = new SongBusiness(
     new SongDatabase(),
     new AlbumDatabase(),
+    new PlaylistSongDatabase(),
     new IdGenerator(),
     new Authenticator()
   );
@@ -103,6 +105,22 @@ export class SongController {
       const input:SongDTO = { id, name, albumId };
 
       const message = await SongController.songBusiness.editSong(token, input);
+
+      await BaseDatabase.destroyConnection();
+      res.status(200).send(message);
+    } catch (error) {
+      await BaseDatabase.destroyConnection();
+      res.status(error.statusCode || 400).send({ message: error.message });
+    }
+  }
+
+  public deleteSong = async (req:Request, res:Response) => {
+    try {
+      const token = req.headers.authorization!;
+
+      const id = req.params.id as string;
+
+      const message = await SongController.songBusiness.deleteSong(token, id);
 
       await BaseDatabase.destroyConnection();
       res.status(200).send(message);

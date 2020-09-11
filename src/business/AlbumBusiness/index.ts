@@ -2,11 +2,12 @@ import { AlbumDatabase } from "../../data/AlbumDatabase";
 import { AlbumGenreDatabase } from "../../data/AlbumGenreDatabase";
 import { MusicGenreDatabase } from "../../data/MusicGenreDatabase";
 import { SongDatabase } from "../../data/SongDatabase";
+import { PlaylistSongDatabase } from "../../data/PlaylistSongDatabase";
 
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 
-import { Album, AlbumInputDTO, AlbumDTO, AlbumGenreDTO, AlbumResponseDTO } from "../../model/Album";
+import { Album, AlbumInputDTO, AlbumDTO, AlbumGenreDTO, AlbumResponseDTO, AlbumBandDTO } from "../../model/Album";
 import { User, MessageResponseDTO, USER_ROLES } from "../../model/User";
 import { MusicGenre } from "../../model/Band";
 import { SongAlbumDTO } from "../../model/Song";
@@ -21,6 +22,7 @@ export class AlbumBusiness {
     private albumGenreDatabase:AlbumGenreDatabase,
     private musicGenreDatabase:MusicGenreDatabase,
     private songDatabase:SongDatabase,
+    private playlistSongDatabase:PlaylistSongDatabase,
     private idGenerator:IdGenerator,
     private authenticator:Authenticator
   ) {}
@@ -95,5 +97,37 @@ export class AlbumBusiness {
     const albums:AlbumResponseDTO[] = await this.albumDatabase.getAlbumsByBandId(authData.id);
 
     return albums;
+  }
+
+  public deleteAlbum = async (token:string, albumId:string):Promise<MessageResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {
+      throw new UnauthorizedError('Only accessible for band');
+    }
+
+    const checkAlbumExist = await this.albumDatabase.checkAlbumById(albumId);
+
+    if (!checkAlbumExist) {
+      throw new NotFoundError('Album not found');
+    }
+
+    const checkAlbumByBandInput:AlbumBandDTO = { id: albumId, creatorBandId: authData.id };
+    
+    const checkAlbumByBand:boolean = await this.albumDatabase.checkAlbumByIdAndBandId(checkAlbumByBandInput);
+    
+    if (!checkAlbumByBand) {
+      throw new InvalidParameterError('Album was not created by this band');
+    }
+
+    await this.playlistSongDatabase.deleteAlbum(albumId);
+
+    await this.songDatabase.deleteAlbum(albumId);
+
+    await this.albumGenreDatabase.deleteAlbum(albumId);
+
+    await this.albumDatabase.deleteAlbum(albumId);
+
+    return { message: 'Album deleted successfully' };
   }
 }

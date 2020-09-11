@@ -91,14 +91,6 @@ export interface TokenResponseDTO {
   token:string;
 }
 
-export interface GetAllListenersResponseDTO {
-  id:string;
-  name:string;
-  nickname:string;
-  email:string;
-  role:USER_ROLES;
-}
-
 export enum USER_ROLES {
   BAND = 'BAND',
   FREE = 'FREE',

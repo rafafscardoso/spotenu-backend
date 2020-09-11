@@ -41,4 +41,16 @@ export class AlbumGenreDatabase extends BaseDatabase {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
   }
+
+  public deleteAlbum = async (albumId:string):Promise<void> => {
+    const album_id = albumId;
+    try {
+      await this.getConnection()
+        .delete()
+        .from(AlbumGenreDatabase.TABLE_NAME)
+        .where({ album_id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
 }

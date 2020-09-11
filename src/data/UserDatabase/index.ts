@@ -1,7 +1,7 @@
 import { BaseDatabase } from "../BaseDatabase";
 
-import { User, USER_ROLES, EditProfileDTO, GetAllListenersResponseDTO } from "../../model/User";
-import { Band, GetAllBandsResponseDTO, ProfileResponseDTO } from "../../model/Band";
+import { User, USER_ROLES, EditProfileDTO } from "../../model/User";
+import { Band, ProfileResponseDTO, ListInputDTO } from "../../model/Band";
 
 import { InternalServerError } from "../../error/InternalServerError";
 
@@ -83,16 +83,35 @@ export class UserDatabase extends BaseDatabase {
     }
   }
 
-  public getAllBands = async ():Promise<GetAllBandsResponseDTO[]> => {
+  public getAllBandsToApprove = async (input:ListInputDTO):Promise<ProfileResponseDTO[]> => {
+    const limit = input.limit;
+    const offset = limit * (input.page - 1);
     const role = User.stringToUserRole('band');
+    const is_approved = false ? 1 : 0;
     try {
       const result = await this.getConnection()
         .select('id', 'name', 'nickname', 'email', 'is_approved as isApproved')
         .from(UserDatabase.TABLE_NAME)
-        .where({ role });
+        .where({ role, is_approved })
+        .limit(limit)
+        .offset(offset);
       return result.map((item:any) => {
         return { ...item, isApproved: item.isApproved ? true : false };
       });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public countBandsToApprove = async ():Promise<number> => {
+    const role = User.stringToUserRole('band');
+    const is_approved = false ? 1 : 0;
+    try {
+      const result = await this.getConnection()
+        .select('id')
+        .from(UserDatabase.TABLE_NAME)
+        .where({ role, is_approved });
+      return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
@@ -139,14 +158,31 @@ export class UserDatabase extends BaseDatabase {
     }
   }
 
-  public getAllListeners = async ():Promise<GetAllListenersResponseDTO[]> => {
+  public getAllFree = async (input:ListInputDTO):Promise<ProfileResponseDTO[]> => {
+    const limit = input.limit;
+    const offset = limit * (input.page - 1);
+    const role = User.stringToUserRole('free');
     try {
       const result = await this.getConnection()
         .select('id', 'name', 'nickname', 'email', 'role')
         .from(UserDatabase.TABLE_NAME)
-        .where({ role: User.stringToUserRole('free') })
-        .orWhere({ role: User.stringToUserRole('premium') });
+        .where({ role })
+        .limit(limit)
+        .offset(offset);
       return result;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public countFree = async():Promise<number> => {
+    const role = User.stringToUserRole('free');
+    try {
+      const result = await this.getConnection()
+        .select('id')
+        .from(UserDatabase.TABLE_NAME)
+        .where({ role });
+      return result.length;
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

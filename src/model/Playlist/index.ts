@@ -7,6 +7,7 @@ export class Playlist {
     private isPrivate:boolean,
     private userId:string,
     private userName:string,
+    private quantity:number,
     private songs:Song[]
   ) {}
 
@@ -19,6 +20,8 @@ export class Playlist {
   public getUserId = ():string => this.userId;
 
   public getUserName = ():string => this.userName;
+
+  public getQuantity = ():number => this.quantity;
 
   public getSongs = ():Song[] => this.songs;
 
@@ -42,12 +45,16 @@ export class Playlist {
     this.userName = userName;
   }
 
+  public setQuantity = (quantity:number):void => {
+    this.quantity = quantity;
+  }
+
   public setSongs = (songs:Song[]):void => {
     this.songs = songs;
   }
 
   public static toPlaylistModel = (playlist:any):Playlist => (
-    new Playlist(playlist.id, playlist.name, playlist.isPrivate, playlist.userId, playlist.userName, playlist.songs)
+    new Playlist(playlist.id, playlist.name, playlist.isPrivate, playlist.userId, playlist.userName, playlist.quantity, playlist.songs)
   )
 }
 

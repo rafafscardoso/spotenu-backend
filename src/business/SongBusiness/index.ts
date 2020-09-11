@@ -1,5 +1,6 @@
 import { SongDatabase } from "../../data/SongDatabase";
 import { AlbumDatabase } from "../../data/AlbumDatabase";
+import { PlaylistSongDatabase } from "../../data/PlaylistSongDatabase";
 
 import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
@@ -16,6 +17,7 @@ export class SongBusiness {
   constructor (
     private songDatabase:SongDatabase,
     private albumDatabase:AlbumDatabase,
+    private playlistSongDatabase:PlaylistSongDatabase,
     private idGenerator:IdGenerator,
     private authenticator:Authenticator
   ) {}
@@ -47,7 +49,7 @@ export class SongBusiness {
       throw new InvalidParameterError('Album was not created by this band');
     }
 
-    const checkSongExist = await this.songDatabase.checkSongByNameAndAlbum(input);
+    const checkSongExist:boolean = await this.songDatabase.checkSongByNameAndAlbum(input);
 
     if (checkSongExist) {
       throw new InvalidParameterError('Song already exists in this album');
@@ -169,7 +171,7 @@ export class SongBusiness {
 
       const checkAlbumByBandInput:AlbumBandDTO = { id: albumId, creatorBandId: authData.id };
       
-      const checkAlbumByBand = await this.albumDatabase.checkAlbumByIdAndBandId(checkAlbumByBandInput);
+      const checkAlbumByBand:boolean = await this.albumDatabase.checkAlbumByIdAndBandId(checkAlbumByBandInput);
       
       if (!checkAlbumByBand) {
         throw new InvalidParameterError('Album was not created by this band');
@@ -179,5 +181,33 @@ export class SongBusiness {
     await this.songDatabase.editSong(input);
 
     return { message: 'Song edited successfully' };
+  }
+
+  public deleteSong = async (token:string, songId:string):Promise<MessageResponseDTO> => {
+    const authData:AuthenticationData = this.authenticator.getData(token);
+
+    if (User.stringToUserRole(authData.role) !== USER_ROLES.BAND) {
+      throw new UnauthorizedError('Only accessible for band');
+    }
+
+    const song:Song = await this.songDatabase.getSongById(songId);
+
+    if (!song) {
+      throw new NotFoundError('Song not found');
+    }
+
+    const checkSongByBandIdInput:SongBandDTO = { id: songId, bandId: authData.id };
+
+    const checkSongByBandId:boolean = await this.songDatabase.checkSongByBandId(checkSongByBandIdInput);
+
+    if (!checkSongByBandId) {
+      throw new UnauthorizedError('Only accessible for the creator band')
+    }
+
+    await this.playlistSongDatabase.deleteSong(songId);
+
+    await this.songDatabase.deleteSong(songId);
+
+    return { message: 'Song deleted successfully' };
   }
 }

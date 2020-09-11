@@ -1,7 +1,6 @@
 import { BaseDatabase } from "../BaseDatabase";
 import { UserDatabase } from "../UserDatabase";
 import { PlaylistUserDatabase } from "../PlaylistUserDatabase";
-import { PlaylistSongDatabase } from "../PlaylistSongDatabase";
 
 import { PlaylistDTO, PlaylistResponseDTO, GetPlaylistInputDTO, PlaylistUserDTO, EditPlaylistDTO } from "../../model/Playlist";
 
@@ -74,7 +73,6 @@ export class PlaylistDatabase extends BaseDatabase {
     const limit = input.limit;
     const offset = limit * (input.page - 1);
     const p = PlaylistDatabase.TABLE_NAME;
-    const pu = PlaylistUserDatabase.getTableName();
     const u = UserDatabase.getTableName();
     try {
       const result = await this.getConnection()
@@ -85,7 +83,6 @@ export class PlaylistDatabase extends BaseDatabase {
           `${u}.name as userName`
         )
         .from(p)
-        .join(pu, `${p}.id`, `${pu}.playlist_id`)
         .join(u, `${u}.id`, `${p}.user_id`)
         .where(`${p}.is_private`, 0)
         .limit(limit)

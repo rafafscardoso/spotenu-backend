@@ -14,7 +14,7 @@ userRouter.put('/band/create', userController.createBand);
 
 userRouter.post('/login', userController.login);
 
-userRouter.get('/band/all', userController.getAllBands);
+userRouter.get('/band/approve', userController.getAllBandsToApprove);
 
 userRouter.put('/approve/:id', userController.approveBand);
 
@@ -24,4 +24,4 @@ userRouter.put('/edit', userController.editProfile);
 
 userRouter.get('/profile', userController.getProfile);
 
-userRouter.get('/listeners/all', userController.getAllListeners);
+userRouter.get('/free/all', userController.getAllFree);

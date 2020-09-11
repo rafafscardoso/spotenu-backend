@@ -4,8 +4,8 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator, AuthenticationData } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
-import { User, SignUpInputDTO, LoginInputDTO, MessageResponseDTO, USER_ROLES, EditProfileDTO, TokenResponseDTO, GetAllListenersResponseDTO } from '../../model/User';
-import { Band, GetAllBandsResponseDTO, ProfileResponseDTO } from "../../model/Band";
+import { User, SignUpInputDTO, LoginInputDTO, MessageResponseDTO, USER_ROLES, EditProfileDTO, TokenResponseDTO } from '../../model/User';
+import { Band, ProfileResponseDTO, ListResponseDTO, ListInputDTO } from "../../model/Band";
 
 import { InvalidParameterError } from "../../error/InvalidParameterError";
 import { UnauthorizedError } from "../../error/UnauthorizedError";
@@ -128,16 +128,26 @@ export class UserBusiness {
     return { token };
   }
 
-  public getAllBands = async (token:string):Promise<GetAllBandsResponseDTO[]> => {
+  public getAllBandsToApprove = async (token:string, page:number):Promise<ListResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
       throw new UnauthorizedError('Only accessible for admin');
     }
 
-    const bands:GetAllBandsResponseDTO[] = await this.userDatabase.getAllBands()
+    if (!page) {
+      throw new InvalidParameterError('Missing parameters');
+    }
 
-    return bands;
+    const limit = 10;
+
+    const input:ListInputDTO = { limit, page };
+
+    const bands:ProfileResponseDTO[] = await this.userDatabase.getAllBandsToApprove(input);
+
+    const quantity = await this.userDatabase.countBandsToApprove();
+
+    return { bands, quantity };
   }
 
   public approveBand = async (token:string, bandId:string):Promise<MessageResponseDTO> => {
@@ -207,15 +217,25 @@ export class UserBusiness {
     return { message: 'Profile edited successfully' };
   }
 
-  public getAllListeners = async (token:string):Promise<GetAllListenersResponseDTO[]> => {
+  public getAllFree = async (token:string, page:number):Promise<ListResponseDTO> => {
     const authData:AuthenticationData = this.authenticator.getData(token);
 
     if (User.stringToUserRole(authData.role) !== USER_ROLES.ADMIN) {
       throw new UnauthorizedError('Only accessible for admin');
     }
 
-    const listeners:GetAllListenersResponseDTO[] = await this.userDatabase.getAllListeners();
+    if (!page) {
+      throw new InvalidParameterError('Missing parameters');
+    }
 
-    return listeners;
+    const limit = 10;
+
+    const input:ListInputDTO = { limit, page };
+
+    const free:ProfileResponseDTO[] = await this.userDatabase.getAllFree(input);
+
+    const quantity = await this.userDatabase.countFree()
+
+    return { free, quantity };
   }
 }

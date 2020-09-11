@@ -259,7 +259,9 @@ export class PlaylistBusiness {
 
     const songs = await this.playlistSongDatabase.getSongsByPlaylistId(playlistSongInput);
 
-    const playlistInput = { ...playlistResponse, songs };
+    const quantity = await this.playlistSongDatabase.countSongsByPlaylistId(id);
+
+    const playlistInput = { ...playlistResponse, songs, quantity };
 
     const playlist = Playlist.toPlaylistModel(playlistInput);
 

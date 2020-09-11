@@ -95,4 +95,15 @@ export class AlbumDatabase extends BaseDatabase {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
   }
+
+  public deleteAlbum = async (id:string):Promise<void> => {
+    try {
+      await this.getConnection()
+        .delete()
+        .from(AlbumDatabase.TABLE_NAME)
+        .where({ id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
 }

@@ -2,6 +2,7 @@ import { BaseDatabase } from "../BaseDatabase";
 import { AlbumDatabase } from "../AlbumDatabase";
 import { UserDatabase } from "../UserDatabase";
 import { AlbumGenreDatabase } from "../AlbumGenreDatabase";
+import { PlaylistSongDatabase } from "../PlaylistSongDatabase";
 
 import { Song, SongDTO, SongInputDTO, SongAlbumDTO, SongQueryDTO, SongBandDTO, SongMusicGenreDTO } from "../../model/Song";
 
@@ -225,6 +226,29 @@ export class SongDatabase extends BaseDatabase {
         .update(editInput)
         .from(SongDatabase.TABLE_NAME)
         .where({ id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public deleteSong = async (id:string):Promise<void> => {
+    try {
+      await this.getConnection()
+      .delete()
+      .from(SongDatabase.TABLE_NAME)
+      .where({ id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public deleteAlbum = async (albumId:string):Promise<void> => {
+    const album_id = albumId;
+    try {
+      await this.getConnection()
+        .delete()
+        .from(SongDatabase.TABLE_NAME)
+        .where({ album_id });
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }

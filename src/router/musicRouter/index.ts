@@ -52,3 +52,7 @@ musicRouter.get('/playlist/:id', playlistController.getPlaylistById);
 musicRouter.put('/playlist/edit/:id', playlistController.editPlaylist);
 
 musicRouter.put('/song/edit/:id', songController.editSong);
+
+musicRouter.delete('/song/:id', songController.deleteSong);
+
+musicRouter.delete('/album/:id', albumController.deleteAlbum);

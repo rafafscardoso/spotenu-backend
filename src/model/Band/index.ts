@@ -31,20 +31,12 @@ export class Band extends User {
   )
 }
 
-export interface GetAllBandsResponseDTO {
-  id:string;
-  name:string;
-  nickname:string;
-  email:string;
-  isApproved:boolean;
-}
-
 export interface ProfileResponseDTO {
   id:string;
   name:string;
   nickname:string;
   email:string;
-  role:USER_ROLES;
+  role?:USER_ROLES;
   description?:string;
   isApproved?:boolean;
 }
@@ -52,4 +44,15 @@ export interface ProfileResponseDTO {
 export interface MusicGenre {
   id:string;
   name?:string;
+}
+
+export interface ListResponseDTO {
+  free?:ProfileResponseDTO[];
+  bands?:ProfileResponseDTO[];
+  quantity:number;
+}
+
+export interface ListInputDTO {
+  page:number;
+  limit:number;
 }

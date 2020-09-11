@@ -9,8 +9,8 @@ import { IdGenerator } from "../../service/IdGenerator";
 import { Authenticator } from "../../service/Authenticator";
 import { HashManager } from "../../service/HashManager";
 
-import { SignUpInputDTO, MessageResponseDTO, LoginInputDTO, EditProfileDTO, TokenResponseDTO, GetAllListenersResponseDTO } from '../../model/User';
-import { GetAllBandsResponseDTO, ProfileResponseDTO } from '../../model/Band';
+import { SignUpInputDTO, MessageResponseDTO, LoginInputDTO, EditProfileDTO, TokenResponseDTO } from '../../model/User';
+import { ProfileResponseDTO, ListResponseDTO } from '../../model/Band';
 
 export class UserController {
   private static userBusiness = new UserBusiness(
@@ -78,14 +78,16 @@ export class UserController {
     }
   }
 
-  public getAllBands = async (req:Request, res:Response) => {
+  public getAllBandsToApprove = async (req:Request, res:Response) => {
     try {
       const token = req.headers.authorization!;
 
-      const bands:GetAllBandsResponseDTO[] = await UserController.userBusiness.getAllBands(token);
+      const page = Number(req.query.page);
+
+      const response:ListResponseDTO = await UserController.userBusiness.getAllBandsToApprove(token, page);
 
       await BaseDatabase.destroyConnection();
-      res.status(200).send({ bands });
+      res.status(200).send(response);
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });
@@ -154,14 +156,16 @@ export class UserController {
     }
   }
 
-  public getAllListeners = async (req:Request, res:Response) => {
+  public getAllFree = async (req:Request, res:Response) => {
     try {
       const token = req.headers.authorization!;
 
-      const listeners:GetAllListenersResponseDTO[] = await UserController.userBusiness.getAllListeners(token);
+      const page = Number(req.query.page)
+
+      const response:ListResponseDTO = await UserController.userBusiness.getAllFree(token, page);
       
       await BaseDatabase.destroyConnection();
-      res.status(200).send({ listeners });
+      res.status(200).send(response);
     } catch (error) {
       await BaseDatabase.destroyConnection();
       res.status(error.statusCode || 400).send({ message: error.message });

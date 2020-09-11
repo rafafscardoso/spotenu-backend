@@ -81,9 +81,48 @@ export class PlaylistSongDatabase extends BaseDatabase {
         .where(`${ps}.playlist_id`, playlist_id)
         .limit(limit)
         .offset(offset);
-      return result.map(item => (
-        Song.toSongModel(item)
-      ));
+      return result.map(item => Song.toSongModel(item));
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public countSongsByPlaylistId = async (playlistId:string):Promise<number> => {
+    const playlist_id = playlistId;
+    try {
+      const result = await this.getConnection()
+        .select()
+        .from(PlaylistSongDatabase.TABLE_NAME)
+        .where({ playlist_id });
+      return result.length;
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public deleteSong = async (songId:string):Promise<void> => {
+    const song_id = songId;
+    try {
+      await this.getConnection()
+        .delete()
+        .from(PlaylistSongDatabase.TABLE_NAME)
+        .where({ song_id });
+    } catch (error) {
+      throw new InternalServerError(error.sqlMessage || error.message);
+    }
+  }
+
+  public deleteAlbum = async (albumId:string):Promise<void> => {
+    const album_id = albumId;
+    try {
+      const result = await this.getConnection()
+        .select('id')
+        .from(SongDatabase.getTableName())
+        .where({ album_id });
+      for (let item of result) {
+        const { id } = item;
+        this.deleteSong(id);
+      }
     } catch (error) {
       throw new InternalServerError(error.sqlMessage || error.message);
     }
