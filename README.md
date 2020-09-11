@@ -23,6 +23,6 @@ As instruções são:
 https://5d4u5nhjxd.execute-api.us-east-1.amazonaws.com/dev
 
 ## Contato (opcional)
-Rafael Felipe Santos Cardoso
-rafafscardoso@gmail.com
-(11) 97224-8806
+Rafael Felipe Santos Cardoso  
+rafafscardoso@gmail.com  
+(11) 97224-8806  
