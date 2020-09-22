@@ -19,10 +19,7 @@ As instruções são:
 1. `npm run start` para rodar localmente o projeto
 1. `npm run deploy` para gerar uma versão possível de ser deployada com os arquivos transpilados para Javascript
 
-## Versão deployada para teste
-https://5d4u5nhjxd.execute-api.us-east-1.amazonaws.com/dev
-
-## Contato (opcional)
+## Contato
 Rafael Felipe Santos Cardoso  
 rafafscardoso@gmail.com  
 (11) 97224-8806  
